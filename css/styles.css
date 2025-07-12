@@ -261,6 +261,37 @@ body {
     align-items: center;
 }
 
+.status-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.developer-info {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+}
+
+.github-link {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 0.2rem;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.github-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.github-link svg {
+    width: 14px;
+    height: 14px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .header {
