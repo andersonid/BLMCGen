@@ -21,8 +21,7 @@ class BMCRenderer {
             titleFontSize: 14,
             lineHeight: 18,
             sectionTitleSize: 15, // Increased from 13 to 15
-            iconSize: 16,
-            backgroundIconSize: 40 // Size for background icons
+            iconSize: 16
         };
         
         // Color scheme - Soft and transparent professional colors
@@ -45,8 +44,7 @@ class BMCRenderer {
             sectionTitle: '#34495e',
             border: 'rgba(52, 73, 94, 0.2)',
             headerBg: 'rgba(255, 255, 255, 0.95)',
-            shadow: 'rgba(0, 0, 0, 0.08)',
-            backgroundIcon: 'rgba(255, 255, 255, 0.15)' // For background icons
+            shadow: 'rgba(0, 0, 0, 0.08)'
         };
         
         // Icons for each section (more subtle)
@@ -79,7 +77,6 @@ class BMCRenderer {
         this.layout.sectionTitleSize = Math.max(12, 15 * scaleFactor); // Updated scaling
         this.layout.lineHeight = Math.max(16, 18 * scaleFactor);
         this.layout.iconSize = Math.max(12, 16 * scaleFactor);
-        this.layout.backgroundIconSize = Math.max(30, 40 * scaleFactor);
     }
 
     async render(data) {
@@ -196,21 +193,33 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors[sectionId] || 'rgba(248, 249, 250, 0.6)';
         this.ctx.fillRect(x, y, width, height);
         
-        // Draw background icon (watermark effect)
-        this.drawBackgroundIcon(sectionId, x, y, width, height);
-        
         // Draw subtle section border
         this.ctx.strokeStyle = this.colors.border;
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(x, y, width, height);
         
-        // Draw section title (more elegant and larger)
+        // Draw section icon before title
+        const icon = this.icons[sectionId];
+        if (icon) {
+            this.ctx.fillStyle = this.colors.sectionTitle;
+            this.ctx.font = `${this.layout.iconSize}px Arial, sans-serif`;
+            this.ctx.textAlign = 'left';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(
+                icon, 
+                x + this.layout.padding, 
+                y + this.layout.padding + (this.layout.sectionTitleSize / 2)
+            );
+        }
+        
+        // Draw section title (more elegant and larger) - positioned after icon
         this.ctx.fillStyle = this.colors.sectionTitle;
         this.ctx.font = `700 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'alphabetic';
         this.ctx.fillText(
             title, 
-            x + this.layout.padding, 
+            x + this.layout.padding + (icon ? this.layout.iconSize + 8 : 0), 
             y + this.layout.padding + this.layout.sectionTitleSize
         );
         
@@ -258,36 +267,7 @@ class BMCRenderer {
         });
     }
 
-    drawBackgroundIcon(sectionId, x, y, width, height) {
-        const icon = this.icons[sectionId];
-        if (!icon) return;
-        
-        // Save current context
-        this.ctx.save();
-        
-        // Set up for background icon
-        this.ctx.font = `${this.layout.backgroundIconSize}px Arial, sans-serif`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        
-        // Create a subtle background effect
-        this.ctx.fillStyle = this.colors.backgroundIcon;
-        
-        // Position icon in the center-right or center-bottom area of the section
-        let iconX = x + width - (this.layout.backgroundIconSize / 2) - 20;
-        let iconY = y + height - (this.layout.backgroundIconSize / 2) - 20;
-        
-        // For larger sections, center it better
-        if (height > 150) {
-            iconY = y + height / 2;
-        }
-        
-        // Draw the icon
-        this.ctx.fillText(icon, iconX, iconY);
-        
-        // Restore context
-        this.ctx.restore();
-    }
+
 
     drawRoundedRect(x, y, width, height, radius) {
         this.ctx.beginPath();
