@@ -12,51 +12,52 @@ class BMCRenderer {
         // Layout configuration
         this.layout = {
             margin: 30,
-            padding: 15,
+            padding: 20,
             headerHeight: 80,
             sectionMinHeight: 120,
             borderRadius: 8,
-            fontSize: 11,
+            fontSize: 12,
             headerFontSize: 18,
             titleFontSize: 14,
-            lineHeight: 16,
+            lineHeight: 18,
             sectionTitleSize: 13,
             iconSize: 16
         };
         
-        // Color scheme - Professional BMC colors
+        // Color scheme - Soft and transparent professional colors
         this.colors = {
-            // Section colors matching professional BMC
-            'key-partnerships': '#FF9F43',       // Orange
-            'key-activities': '#5F27CD',         // Purple
-            'key-resources': '#5F27CD',          // Purple
-            'value-propositions': '#0984e3',     // Blue
-            'customer-relationships': '#00b894', // Teal
-            'channels': '#00cec9',               // Cyan
-            'customer-segments': '#e17055',      // Coral
-            'cost-structure': '#d63031',         // Red
-            'revenue-streams': '#00b894',        // Green
+            // Section colors with transparency - soft pastels
+            'key-partnerships': 'rgba(255, 159, 67, 0.6)',       // Soft orange
+            'key-activities': 'rgba(116, 102, 204, 0.6)',        // Soft purple
+            'key-resources': 'rgba(106, 176, 139, 0.6)',         // Soft green
+            'value-propositions': 'rgba(255, 206, 84, 0.6)',     // Soft yellow
+            'customer-relationships': 'rgba(129, 207, 224, 0.6)', // Soft cyan
+            'channels': 'rgba(255, 195, 160, 0.6)',              // Soft peach
+            'customer-segments': 'rgba(161, 196, 253, 0.6)',     // Soft blue
+            'cost-structure': 'rgba(129, 207, 224, 0.6)',        // Soft cyan
+            'revenue-streams': 'rgba(255, 154, 162, 0.6)',       // Soft pink
             
             // UI colors
-            background: '#f8f9fa',
-            text: '#2d3436',
-            title: '#2d3436',
-            border: '#ddd',
-            headerBg: '#ffffff',
-            shadow: 'rgba(0, 0, 0, 0.1)'
+            background: '#ffffff',
+            text: '#2c3e50',
+            title: '#2c3e50',
+            sectionTitle: '#34495e',
+            border: 'rgba(52, 73, 94, 0.2)',
+            headerBg: 'rgba(255, 255, 255, 0.95)',
+            shadow: 'rgba(0, 0, 0, 0.08)'
         };
         
-        // Icons for each section (Unicode symbols)
+        // Icons for each section (more subtle)
         this.icons = {
             'key-partnerships': '🤝',
             'key-activities': '⚡',
             'key-resources': '🔑',
-            'value-propositions': '💎',
+            'value-propositions': '💡',
             'customer-relationships': '❤️',
             'channels': '📱',
             'customer-segments': '👥',
             'cost-structure': '💰',
-            'revenue-streams': '💵'
+            'revenue-streams': '💰'
         };
     }
 
@@ -69,12 +70,12 @@ class BMCRenderer {
         // Update layout based on canvas size
         const scaleFactor = Math.min(width / 1200, height / 800);
         this.layout.margin = Math.max(20, 30 * scaleFactor);
-        this.layout.padding = Math.max(12, 15 * scaleFactor);
-        this.layout.fontSize = Math.max(10, 11 * scaleFactor);
+        this.layout.padding = Math.max(15, 20 * scaleFactor);
+        this.layout.fontSize = Math.max(10, 12 * scaleFactor);
         this.layout.headerFontSize = Math.max(14, 18 * scaleFactor);
         this.layout.titleFontSize = Math.max(11, 14 * scaleFactor);
         this.layout.sectionTitleSize = Math.max(10, 13 * scaleFactor);
-        this.layout.lineHeight = Math.max(14, 16 * scaleFactor);
+        this.layout.lineHeight = Math.max(16, 18 * scaleFactor);
         this.layout.iconSize = Math.max(12, 16 * scaleFactor);
     }
 
@@ -83,7 +84,7 @@ class BMCRenderer {
             // Clear canvas
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             
-            // Set background with gradient
+            // Set clean background
             this.drawBackground();
             
             // Draw main title and description
@@ -108,19 +109,15 @@ class BMCRenderer {
     }
 
     drawBackground() {
-        // Create gradient background
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#f8f9fa');
-        gradient.addColorStop(1, '#e9ecef');
-        
-        this.ctx.fillStyle = gradient;
+        // Clean white background
+        this.ctx.fillStyle = this.colors.background;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     drawMainHeader(data) {
         const y = this.layout.margin;
         
-        // Draw header background
+        // Draw header background with subtle transparency
         this.ctx.fillStyle = this.colors.headerBg;
         this.ctx.fillRect(
             this.layout.margin, 
@@ -129,14 +126,9 @@ class BMCRenderer {
             this.layout.headerHeight - 10
         );
         
-        // Add subtle shadow
-        this.ctx.shadowColor = this.colors.shadow;
-        this.ctx.shadowBlur = 5;
-        this.ctx.shadowOffsetY = 2;
-        
-        // Draw title
+        // Draw title with better typography
         this.ctx.fillStyle = this.colors.title;
-        this.ctx.font = `bold ${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        this.ctx.font = `600 ${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'center';
         this.ctx.fillText(
             data.title || 'Business Model Canvas',
@@ -144,21 +136,16 @@ class BMCRenderer {
             y + 35
         );
         
-        // Draw description
+        // Draw description with lighter color
         if (data.description) {
-            this.ctx.fillStyle = '#6c757d';
-            this.ctx.font = `${this.layout.titleFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+            this.ctx.fillStyle = '#7f8c8d';
+            this.ctx.font = `400 ${this.layout.titleFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
             this.ctx.fillText(
                 data.description,
                 this.canvas.width / 2,
                 y + 58
             );
         }
-        
-        // Reset shadow
-        this.ctx.shadowColor = 'transparent';
-        this.ctx.shadowBlur = 0;
-        this.ctx.shadowOffsetY = 0;
     }
 
     drawSections(data, sectionWidth, sectionHeight) {
@@ -168,19 +155,19 @@ class BMCRenderer {
         // Define section positions following exact BMC methodology (no gaps)
         const sections = [
             // Row 1 (Top)
-            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2, title: 'Parcerias-Chave' },
-            { id: 'key-activities', x: 1, y: 0, width: 1, height: 1, title: 'Atividades-Chave' },
-            { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2, title: 'Proposições de Valor' },
-            { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1, title: 'Relacionamento com Clientes' },
-            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2, title: 'Segmentos de Clientes' },
+            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2, title: 'KEY PARTNERS' },
+            { id: 'key-activities', x: 1, y: 0, width: 1, height: 1, title: 'KEY ACTIVITIES' },
+            { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2, title: 'VALUE PROPOSITIONS' },
+            { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1, title: 'CUSTOMER RELATIONSHIPS' },
+            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2, title: 'CUSTOMER SEGMENTS' },
             
             // Row 2 (Middle)
-            { id: 'key-resources', x: 1, y: 1, width: 1, height: 1, title: 'Recursos-Chave' },
-            { id: 'channels', x: 3, y: 1, width: 1, height: 1, title: 'Canais' },
+            { id: 'key-resources', x: 1, y: 1, width: 1, height: 1, title: 'KEY RESOURCES' },
+            { id: 'channels', x: 3, y: 1, width: 1, height: 1, title: 'CHANNELS' },
             
             // Row 3 (Bottom) - Full width sections
-            { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1, title: 'Estrutura de Custos' },
-            { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1, title: 'Fontes de Receita' }
+            { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1, title: 'COST STRUCTURE' },
+            { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1, title: 'REVENUE STREAMS' }
         ];
         
         sections.forEach(section => {
@@ -202,35 +189,39 @@ class BMCRenderer {
     }
 
     drawSection(sectionId, title, items, x, y, width, height) {
-        // Draw section background (no rounded corners for seamless connection)
-        this.ctx.fillStyle = this.colors[sectionId] || '#F8F9FA';
+        // Draw section background with transparency
+        this.ctx.fillStyle = this.colors[sectionId] || 'rgba(248, 249, 250, 0.6)';
         this.ctx.fillRect(x, y, width, height);
         
-        // Draw section border (clean lines)
+        // Draw subtle section border
         this.ctx.strokeStyle = this.colors.border;
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 1;
         this.ctx.strokeRect(x, y, width, height);
         
-        // Draw section icon and title
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = `${this.layout.iconSize}px Arial, sans-serif`;
+        // Draw section title (more elegant)
+        this.ctx.fillStyle = this.colors.sectionTitle;
+        this.ctx.font = `600 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'left';
-        
-        const icon = this.icons[sectionId] || '📋';
-        this.ctx.fillText(icon, x + this.layout.padding, y + this.layout.padding + this.layout.iconSize);
-        
-        // Draw section title
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = `bold ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.fillText(
             title, 
-            x + this.layout.padding + this.layout.iconSize + 8, 
+            x + this.layout.padding, 
             y + this.layout.padding + this.layout.sectionTitleSize
         );
         
-        // Draw section items
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = `${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        // Draw placeholder text if no items
+        if (items.length === 0) {
+            this.ctx.fillStyle = 'rgba(149, 165, 166, 0.7)';
+            this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+            this.ctx.fillText(
+                'Write here', 
+                x + this.layout.padding, 
+                y + this.layout.padding + this.layout.sectionTitleSize + 25
+            );
+        }
+        
+        // Draw section items with better typography
+        this.ctx.fillStyle = this.colors.text;
+        this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
         let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 25;
         const maxWidth = width - (this.layout.padding * 2);
@@ -240,14 +231,14 @@ class BMCRenderer {
                 return; // Skip items that don't fit
             }
             
-            // Draw bullet point
-            this.ctx.fillStyle = '#ffffff';
+            // Draw subtle bullet point
+            this.ctx.fillStyle = this.colors.sectionTitle;
             this.ctx.beginPath();
-            this.ctx.arc(x + this.layout.padding + 6, itemY - 2, 2, 0, 2 * Math.PI);
+            this.ctx.arc(x + this.layout.padding + 6, itemY - 4, 1.5, 0, 2 * Math.PI);
             this.ctx.fill();
             
             // Draw item text with word wrapping
-            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillStyle = this.colors.text;
             const lines = this.wrapText(item, maxWidth - 20);
             lines.forEach(line => {
                 if (itemY + this.layout.lineHeight > y + height - this.layout.padding) {
@@ -257,7 +248,7 @@ class BMCRenderer {
                 itemY += this.layout.lineHeight;
             });
             
-            itemY += 3; // Small gap between items
+            itemY += 4; // Small gap between items
         });
     }
 
@@ -280,7 +271,7 @@ class BMCRenderer {
         const lines = [];
         let currentLine = '';
         
-        this.ctx.font = `${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
         words.forEach(word => {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
@@ -305,7 +296,7 @@ class BMCRenderer {
         this.drawBackground();
         
         this.ctx.fillStyle = '#e74c3c';
-        this.ctx.font = `${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        this.ctx.font = `600 ${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'center';
         this.ctx.fillText(
             'Erro ao renderizar',
@@ -314,7 +305,7 @@ class BMCRenderer {
         );
         
         this.ctx.fillStyle = this.colors.text;
-        this.ctx.font = `${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.fillText(
             message,
             this.canvas.width / 2,
