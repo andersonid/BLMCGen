@@ -20,7 +20,7 @@ class BMCRenderer {
             headerFontSize: 18,
             titleFontSize: 14,
             lineHeight: 18,
-            sectionTitleSize: 15, // Increased from 13 to 15
+            sectionTitleSize: 12, // Reduced to fit long titles
             iconSize: 16
         };
         
@@ -74,7 +74,7 @@ class BMCRenderer {
         this.layout.fontSize = Math.max(10, 12 * scaleFactor);
         this.layout.headerFontSize = Math.max(14, 18 * scaleFactor);
         this.layout.titleFontSize = Math.max(11, 14 * scaleFactor);
-        this.layout.sectionTitleSize = Math.max(12, 15 * scaleFactor); // Updated scaling
+        this.layout.sectionTitleSize = Math.max(10, 12 * scaleFactor); // Reduced scaling
         this.layout.lineHeight = Math.max(16, 18 * scaleFactor);
         this.layout.iconSize = Math.max(12, 16 * scaleFactor);
     }
@@ -230,7 +230,7 @@ class BMCRenderer {
             this.ctx.fillText(
                 'Write here', 
                 x + this.layout.padding, 
-                y + this.layout.padding + this.layout.sectionTitleSize + 28
+                y + this.layout.padding + this.layout.sectionTitleSize + 25
             );
         }
         
@@ -238,7 +238,7 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors.text;
         this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
-        let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 28;
+        let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 25;
         const maxWidth = width - (this.layout.padding * 2);
         
         items.forEach((item, index) => {
