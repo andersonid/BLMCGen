@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMC Markdown - Business Model Canvas Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <h1>BMC Markdown</h1>
+                <span>Business Model Canvas Generator</span>
+            </div>
+            <div class="controls">
+                <div class="format-selector">
+                    <label for="paperFormat">Formato:</label>
+                    <select id="paperFormat" class="format-select">
+                        <option value="a4">A4 (210×297mm)</option>
+                        <option value="letter">Letter (8.5×11")</option>
+                        <option value="a3">A3 (297×420mm)</option>
+                    </select>
+                </div>
+                <div class="zoom-controls">
+                    <button id="zoomOutBtn" class="btn-icon" title="Zoom Out">−</button>
+                    <span id="zoomLevel" class="zoom-display">100%</span>
+                    <button id="zoomInBtn" class="btn-icon" title="Zoom In">+</button>
+                    <button id="fitBtn" class="btn-icon" title="Fit to Screen">⚏</button>
+                </div>
+            </div>
+            <div class="actions">
+                <button id="exportBtn" class="btn">Export</button>
+                <button id="shareBtn" class="btn">Share</button>
+                <button id="saveBtn" class="btn-primary">Save</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Code Editor Section -->
+            <div class="editor-section">
+                <div class="editor-header">
+                    <div class="editor-tabs">
+                        <button class="tab active" data-tab="code">
+                            📝 Code
+                        </button>
+                        <button class="tab" data-tab="format">
+                            📋 Format
+                        </button>
+                        <button class="tab" data-tab="example">
+                            💡 Example
+                        </button>
+                    </div>
+                </div>
+                <div class="editor-content">
+                    <div id="editor" class="editor"></div>
+                </div>
+            </div>
+
+            <!-- Resizable Splitter -->
+            <div class="splitter" id="splitter">
+                <div class="splitter-handle"></div>
+            </div>
+
+            <!-- Canvas Section -->
+            <div class="canvas-section">
+                <div class="canvas-header">
+                    <div class="canvas-tabs">
+                        <button class="tab active" data-tab="canvas">
+                            📊 Business Model Canvas
+                        </button>
+                    </div>
+                    <div class="canvas-actions">
+                        <button id="refreshBtn" class="btn-icon" title="Refresh">🔄</button>
+                        <button id="downloadBtn" class="btn-icon" title="Download PNG">📥</button>
+                    </div>
+                </div>
+                <div class="canvas-content">
+                    <div class="canvas-container" id="canvasContainer">
+                        <canvas id="bmcCanvas" width="1000" height="700"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span id="statusText">Ready</span>
+            <span id="cursorPosition">Ln 1, Col 1</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+    <script src="js/parser.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html> 
