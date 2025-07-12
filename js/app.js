@@ -13,8 +13,72 @@ class BMCApp {
         this.init();
     }
 
+    initLanguage() {
+        // Set language selector to current language
+        const languageSelect = document.getElementById('languageSelect');
+        languageSelect.value = i18n.getLanguage();
+        
+        // Update UI elements with translations
+        this.updateUILanguage();
+    }
+
+    changeLanguage(lang) {
+        i18n.setLanguage(lang);
+        this.updateUILanguage();
+        this.render(); // Re-render canvas with new language
+    }
+
+    updateUILanguage() {
+        // Update button texts and titles
+        const elements = {
+            'exportBtn': i18n.t('export'),
+            'shareBtn': i18n.t('share'),
+            'saveBtn': i18n.t('save'),
+            'refreshBtn': i18n.t('refresh'),
+            'downloadBtn': i18n.t('download'),
+            'zoomOutBtn': i18n.t('zoom-out'),
+            'zoomInBtn': i18n.t('zoom-in'),
+            'fitBtn': i18n.t('fit-screen')
+        };
+        
+        // Update button texts
+        Object.entries(elements).forEach(([id, text]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                if (element.tagName === 'BUTTON' && !element.classList.contains('btn-icon')) {
+                    element.textContent = text;
+                } else {
+                    element.title = text;
+                }
+            }
+        });
+        
+        // Update tab texts
+        const codeTab = document.querySelector('[data-tab="code"]');
+        if (codeTab) {
+            codeTab.innerHTML = `📝 ${i18n.t('code')}`;
+        }
+        
+        // Update status text
+        const statusText = document.getElementById('statusText');
+        if (statusText && statusText.textContent !== i18n.t('ready')) {
+            // Only update if it's still showing 'Ready'
+            statusText.textContent = i18n.t('ready');
+        }
+        
+        // Update developer info
+        const developerInfo = document.querySelector('.developer-info');
+        if (developerInfo) {
+            developerInfo.textContent = `${i18n.t('developed-by')} andersonid`;
+        }
+    }
+
     async init() {
         try {
+            // Initialize i18n
+            i18n.init();
+            this.initLanguage();
+            
             // Initialize Canvas
             this.initCanvas();
             
@@ -35,7 +99,7 @@ class BMCApp {
             this.loadExample();
             
             // Update status
-            this.updateStatus('Ready');
+            this.updateStatus(i18n.t('ready'));
             
             console.log('BMC Markdown App initialized successfully');
         } catch (error) {
@@ -170,6 +234,11 @@ class BMCApp {
     }
 
     setupEventListeners() {
+        // Language selector
+        document.getElementById('languageSelect').addEventListener('change', (e) => {
+            this.changeLanguage(e.target.value);
+        });
+        
         // Zoom controls
         document.getElementById('zoomInBtn').addEventListener('click', () => {
             this.zoomIn();

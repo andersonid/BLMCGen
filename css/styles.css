@@ -50,6 +50,38 @@ body {
     gap: 1.5rem;
 }
 
+.language-selector {
+    display: flex;
+    align-items: center;
+}
+
+.language-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.language-select:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.language-select:focus {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.language-select option {
+    background: #2d2d30;
+    color: white;
+    padding: 0.4rem;
+}
+
 .zoom-controls {
     display: flex;
     align-items: center;

@@ -131,7 +131,7 @@ class BMCRenderer {
         this.ctx.font = `600 ${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'center';
         this.ctx.fillText(
-            data.title || 'Business Model Canvas',
+            data.title || i18n.t('business-model-canvas'),
             this.canvas.width / 2,
             y + 35
         );
@@ -155,19 +155,19 @@ class BMCRenderer {
         // Define section positions following exact BMC methodology (no gaps)
         const sections = [
             // Row 1 (Top)
-            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2, title: 'KEY PARTNERS' },
-            { id: 'key-activities', x: 1, y: 0, width: 1, height: 1, title: 'KEY ACTIVITIES' },
-            { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2, title: 'VALUE PROPOSITIONS' },
-            { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1, title: 'CUSTOMER RELATIONSHIPS' },
-            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2, title: 'CUSTOMER SEGMENTS' },
+            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2 },
+            { id: 'key-activities', x: 1, y: 0, width: 1, height: 1 },
+            { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2 },
+            { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1 },
+            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2 },
             
             // Row 2 (Middle)
-            { id: 'key-resources', x: 1, y: 1, width: 1, height: 1, title: 'KEY RESOURCES' },
-            { id: 'channels', x: 3, y: 1, width: 1, height: 1, title: 'CHANNELS' },
+            { id: 'key-resources', x: 1, y: 1, width: 1, height: 1 },
+            { id: 'channels', x: 3, y: 1, width: 1, height: 1 },
             
             // Row 3 (Bottom) - Full width sections
-            { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1, title: 'COST STRUCTURE' },
-            { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1, title: 'REVENUE STREAMS' }
+            { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1 },
+            { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1 }
         ];
         
         sections.forEach(section => {
@@ -178,7 +178,7 @@ class BMCRenderer {
             
             this.drawSection(
                 section.id,
-                section.title,
+                i18n.t(section.id),
                 data.sections[section.id] || [],
                 x,
                 y,
@@ -228,7 +228,7 @@ class BMCRenderer {
             this.ctx.fillStyle = 'rgba(149, 165, 166, 0.7)';
             this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
             this.ctx.fillText(
-                'Write here', 
+                i18n.t('write-here'), 
                 x + this.layout.padding, 
                 y + this.layout.padding + this.layout.sectionTitleSize + 25
             );

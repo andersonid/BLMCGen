@@ -16,6 +16,13 @@
                 <span>Business Model Canvas Generator</span>
             </div>
             <div class="controls">
+                <div class="language-selector">
+                    <select id="languageSelect" class="language-select">
+                        <option value="en">🇺🇸 English</option>
+                        <option value="pt">🇧🇷 Português</option>
+                        <option value="es">🇪🇸 Español</option>
+                    </select>
+                </div>
                 <div class="zoom-controls">
                     <button id="zoomOutBtn" class="btn-icon" title="Zoom Out">−</button>
                     <span id="zoomLevel" class="zoom-display">100%</span>
@@ -89,6 +96,7 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/renderer.js"></script>
     <script src="js/app.js"></script>
