@@ -8,7 +8,6 @@ class BMCApp {
         this.ctx = null;
         this.isRendering = false;
         this.splitter = null;
-        this.paperFormat = 'a4';
         this.zoomLevel = 1;
         
         this.init();
@@ -171,14 +170,6 @@ class BMCApp {
     }
 
     setupEventListeners() {
-        // Format selector
-        const formatSelector = document.getElementById('paperFormat');
-        formatSelector.addEventListener('change', (e) => {
-            this.paperFormat = e.target.value;
-            this.updateCanvasSize();
-            this.render();
-        });
-        
         // Zoom controls
         document.getElementById('zoomInBtn').addEventListener('click', () => {
             this.zoomIn();
@@ -224,15 +215,12 @@ class BMCApp {
     }
 
     updateCanvasSize() {
-        const formats = {
-            a4: { width: 1190, height: 841 },      // A4 landscape (210×297mm at 96dpi)
-            letter: { width: 1054, height: 816 },  // Letter landscape (8.5×11" at 96dpi)
-            a3: { width: 1684, height: 1190 }      // A3 landscape (297×420mm at 96dpi)
-        };
+        // Fixed canvas size optimized for screen viewing
+        const canvasWidth = 1200;
+        const canvasHeight = 800;
         
-        const format = formats[this.paperFormat];
-        this.canvas.width = format.width;
-        this.canvas.height = format.height;
+        this.canvas.width = canvasWidth;
+        this.canvas.height = canvasHeight;
         
         // Update canvas container
         const container = document.getElementById('canvasContainer');
@@ -241,7 +229,7 @@ class BMCApp {
         
         // Re-render if renderer exists
         if (this.renderer) {
-            this.renderer.updateCanvasSize(format.width, format.height);
+            this.renderer.updateCanvasSize(canvasWidth, canvasHeight);
             this.render();
         }
     }
@@ -500,7 +488,6 @@ cost-structure:
     saveProject() {
         const projectData = {
             code: this.editor.getValue(),
-            format: this.paperFormat,
             zoom: this.zoomLevel,
             timestamp: new Date().toISOString()
         };

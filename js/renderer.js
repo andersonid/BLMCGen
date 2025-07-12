@@ -6,8 +6,8 @@ class BMCRenderer {
         this.zoom = 1;
         this.offsetX = 0;
         this.offsetY = 0;
-        this.canvasWidth = 1190;
-        this.canvasHeight = 841;
+        this.canvasWidth = 1200;
+        this.canvasHeight = 800;
         
         // Layout configuration
         this.layout = {
@@ -67,7 +67,7 @@ class BMCRenderer {
         this.canvas.height = height;
         
         // Update layout based on canvas size
-        const scaleFactor = Math.min(width / 1190, height / 841);
+        const scaleFactor = Math.min(width / 1200, height / 800);
         this.layout.margin = Math.max(20, 30 * scaleFactor);
         this.layout.padding = Math.max(12, 15 * scaleFactor);
         this.layout.fontSize = Math.max(10, 11 * scaleFactor);

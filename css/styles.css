@@ -50,38 +50,6 @@ body {
     gap: 1.5rem;
 }
 
-.format-selector {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.format-selector label {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.format-select {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: white;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.format-select:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.format-select:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
 .zoom-controls {
     display: flex;
     align-items: center;
