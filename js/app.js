@@ -269,13 +269,6 @@ class BMCApp {
         
         // Add active class to clicked tab
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Handle tab content
-        switch (tabName) {
-            case 'example':
-                this.loadExample();
-                break;
-        }
     }
 
     loadExample() {
