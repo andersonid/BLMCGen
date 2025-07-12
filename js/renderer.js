@@ -20,8 +20,9 @@ class BMCRenderer {
             headerFontSize: 18,
             titleFontSize: 14,
             lineHeight: 18,
-            sectionTitleSize: 13,
-            iconSize: 16
+            sectionTitleSize: 15, // Increased from 13 to 15
+            iconSize: 16,
+            backgroundIconSize: 40 // Size for background icons
         };
         
         // Color scheme - Soft and transparent professional colors
@@ -44,7 +45,8 @@ class BMCRenderer {
             sectionTitle: '#34495e',
             border: 'rgba(52, 73, 94, 0.2)',
             headerBg: 'rgba(255, 255, 255, 0.95)',
-            shadow: 'rgba(0, 0, 0, 0.08)'
+            shadow: 'rgba(0, 0, 0, 0.08)',
+            backgroundIcon: 'rgba(255, 255, 255, 0.15)' // For background icons
         };
         
         // Icons for each section (more subtle)
@@ -74,9 +76,10 @@ class BMCRenderer {
         this.layout.fontSize = Math.max(10, 12 * scaleFactor);
         this.layout.headerFontSize = Math.max(14, 18 * scaleFactor);
         this.layout.titleFontSize = Math.max(11, 14 * scaleFactor);
-        this.layout.sectionTitleSize = Math.max(10, 13 * scaleFactor);
+        this.layout.sectionTitleSize = Math.max(12, 15 * scaleFactor); // Updated scaling
         this.layout.lineHeight = Math.max(16, 18 * scaleFactor);
         this.layout.iconSize = Math.max(12, 16 * scaleFactor);
+        this.layout.backgroundIconSize = Math.max(30, 40 * scaleFactor);
     }
 
     async render(data) {
@@ -193,14 +196,17 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors[sectionId] || 'rgba(248, 249, 250, 0.6)';
         this.ctx.fillRect(x, y, width, height);
         
+        // Draw background icon (watermark effect)
+        this.drawBackgroundIcon(sectionId, x, y, width, height);
+        
         // Draw subtle section border
         this.ctx.strokeStyle = this.colors.border;
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(x, y, width, height);
         
-        // Draw section title (more elegant)
+        // Draw section title (more elegant and larger)
         this.ctx.fillStyle = this.colors.sectionTitle;
-        this.ctx.font = `600 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        this.ctx.font = `700 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'left';
         this.ctx.fillText(
             title, 
@@ -215,7 +221,7 @@ class BMCRenderer {
             this.ctx.fillText(
                 'Write here', 
                 x + this.layout.padding, 
-                y + this.layout.padding + this.layout.sectionTitleSize + 25
+                y + this.layout.padding + this.layout.sectionTitleSize + 28
             );
         }
         
@@ -223,7 +229,7 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors.text;
         this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
-        let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 25;
+        let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 28;
         const maxWidth = width - (this.layout.padding * 2);
         
         items.forEach((item, index) => {
@@ -250,6 +256,37 @@ class BMCRenderer {
             
             itemY += 4; // Small gap between items
         });
+    }
+
+    drawBackgroundIcon(sectionId, x, y, width, height) {
+        const icon = this.icons[sectionId];
+        if (!icon) return;
+        
+        // Save current context
+        this.ctx.save();
+        
+        // Set up for background icon
+        this.ctx.font = `${this.layout.backgroundIconSize}px Arial, sans-serif`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        
+        // Create a subtle background effect
+        this.ctx.fillStyle = this.colors.backgroundIcon;
+        
+        // Position icon in the center-right or center-bottom area of the section
+        let iconX = x + width - (this.layout.backgroundIconSize / 2) - 20;
+        let iconY = y + height - (this.layout.backgroundIconSize / 2) - 20;
+        
+        // For larger sections, center it better
+        if (height > 150) {
+            iconY = y + height / 2;
+        }
+        
+        // Draw the icon
+        this.ctx.fillText(icon, iconX, iconY);
+        
+        // Restore context
+        this.ctx.restore();
     }
 
     drawRoundedRect(x, y, width, height, radius) {
