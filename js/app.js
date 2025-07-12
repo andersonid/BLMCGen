@@ -272,69 +272,10 @@ class BMCApp {
         
         // Handle tab content
         switch (tabName) {
-            case 'format':
-                this.showFormatHelp();
-                break;
             case 'example':
                 this.loadExample();
                 break;
         }
-    }
-
-    showFormatHelp() {
-        const helpText = `# BMC Markdown Format
-
-## Basic Structure
-\`\`\`bmc
-bmc
-title: Your Business Name
-description: Brief description of your business model
-
-customer-segments:
-  - Segment 1
-  - Segment 2
-
-value-propositions:
-  - Value proposition 1
-  - Value proposition 2
-
-channels:
-  - Channel 1
-  - Channel 2
-
-customer-relationships:
-  - Relationship type 1
-  - Relationship type 2
-
-revenue-streams:
-  - Revenue stream 1
-  - Revenue stream 2
-
-key-resources:
-  - Resource 1
-  - Resource 2
-
-key-activities:
-  - Activity 1
-  - Activity 2
-
-key-partnerships:
-  - Partner 1
-  - Partner 2
-
-cost-structure:
-  - Cost 1
-  - Cost 2
-\`\`\`
-
-## Tips
-- Use "-" for list items
-- Keep descriptions concise
-- Use meaningful business terms
-- Each section can have multiple items
-`;
-        
-        this.editor.setValue(helpText);
     }
 
     loadExample() {
