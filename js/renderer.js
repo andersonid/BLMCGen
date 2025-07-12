@@ -89,13 +89,13 @@ class BMCRenderer {
             // Draw main title and description
             this.drawMainHeader(data);
             
-            // Define BMC grid layout (5 columns x 3 rows)
+            // Define BMC grid layout (5 columns x 3 rows) - exact methodology
             const gridWidth = this.canvas.width - (this.layout.margin * 2);
             const gridHeight = this.canvas.height - this.layout.headerHeight - (this.layout.margin * 2);
             
-            // Calculate section dimensions for proper 3-row layout
-            const sectionWidth = (gridWidth - 40) / 5; // 5 columns
-            const sectionHeight = (gridHeight - 40) / 3; // 3 rows (corrected!)
+            // Calculate section dimensions without gaps (following BMC standard)
+            const sectionWidth = gridWidth / 5; // 5 columns, no gaps
+            const sectionHeight = gridHeight / 3; // 3 rows, no gaps
             
             // Draw all sections
             this.drawSections(data, sectionWidth, sectionHeight);
@@ -165,29 +165,29 @@ class BMCRenderer {
         const startY = this.layout.headerHeight + this.layout.margin;
         const startX = this.layout.margin;
         
-        // Define section positions in correct BMC layout (3 rows)
+        // Define section positions following exact BMC methodology (no gaps)
         const sections = [
-            // Row 1
-            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 1, title: 'Parcerias-Chave' },
+            // Row 1 (Top)
+            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2, title: 'Parcerias-Chave' },
             { id: 'key-activities', x: 1, y: 0, width: 1, height: 1, title: 'Atividades-Chave' },
             { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2, title: 'Proposições de Valor' },
             { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1, title: 'Relacionamento com Clientes' },
-            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 1, title: 'Segmentos de Clientes' },
+            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2, title: 'Segmentos de Clientes' },
             
-            // Row 2
+            // Row 2 (Middle)
             { id: 'key-resources', x: 1, y: 1, width: 1, height: 1, title: 'Recursos-Chave' },
             { id: 'channels', x: 3, y: 1, width: 1, height: 1, title: 'Canais' },
             
-            // Row 3 - Bottom sections (full width)
+            // Row 3 (Bottom) - Full width sections
             { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1, title: 'Estrutura de Custos' },
             { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1, title: 'Fontes de Receita' }
         ];
         
         sections.forEach(section => {
-            const x = startX + (section.x * (sectionWidth + 10));
-            const y = startY + (section.y * (sectionHeight + 10));
-            const width = (sectionWidth * section.width) + ((section.width - 1) * 10);
-            const height = (sectionHeight * section.height) + ((section.height - 1) * 10);
+            const x = startX + (section.x * sectionWidth);
+            const y = startY + (section.y * sectionHeight);
+            const width = (sectionWidth * section.width);
+            const height = (sectionHeight * section.height);
             
             this.drawSection(
                 section.id,
@@ -202,31 +202,17 @@ class BMCRenderer {
     }
 
     drawSection(sectionId, title, items, x, y, width, height) {
-        // Add subtle shadow
-        this.ctx.shadowColor = this.colors.shadow;
-        this.ctx.shadowBlur = 8;
-        this.ctx.shadowOffsetX = 2;
-        this.ctx.shadowOffsetY = 2;
-        
-        // Draw section background with rounded corners
+        // Draw section background (no rounded corners for seamless connection)
         this.ctx.fillStyle = this.colors[sectionId] || '#F8F9FA';
-        this.drawRoundedRect(x, y, width, height, 8);
-        this.ctx.fill();
+        this.ctx.fillRect(x, y, width, height);
         
-        // Reset shadow
-        this.ctx.shadowColor = 'transparent';
-        this.ctx.shadowBlur = 0;
-        this.ctx.shadowOffsetX = 0;
-        this.ctx.shadowOffsetY = 0;
-        
-        // Draw section border
+        // Draw section border (clean lines)
         this.ctx.strokeStyle = this.colors.border;
-        this.ctx.lineWidth = 1;
-        this.drawRoundedRect(x, y, width, height, 8);
-        this.ctx.stroke();
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(x, y, width, height);
         
         // Draw section icon and title
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.fillStyle = '#ffffff';
         this.ctx.font = `${this.layout.iconSize}px Arial, sans-serif`;
         this.ctx.textAlign = 'left';
         
@@ -234,7 +220,7 @@ class BMCRenderer {
         this.ctx.fillText(icon, x + this.layout.padding, y + this.layout.padding + this.layout.iconSize);
         
         // Draw section title
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+        this.ctx.fillStyle = '#ffffff';
         this.ctx.font = `bold ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.fillText(
             title, 
@@ -243,7 +229,7 @@ class BMCRenderer {
         );
         
         // Draw section items
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        this.ctx.fillStyle = '#ffffff';
         this.ctx.font = `${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
         let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 25;
@@ -254,14 +240,14 @@ class BMCRenderer {
                 return; // Skip items that don't fit
             }
             
-            // Draw modern bullet point
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            // Draw bullet point
+            this.ctx.fillStyle = '#ffffff';
             this.ctx.beginPath();
-            this.ctx.arc(x + this.layout.padding + 6, itemY - 2, 3, 0, 2 * Math.PI);
+            this.ctx.arc(x + this.layout.padding + 6, itemY - 2, 2, 0, 2 * Math.PI);
             this.ctx.fill();
             
             // Draw item text with word wrapping
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            this.ctx.fillStyle = '#ffffff';
             const lines = this.wrapText(item, maxWidth - 20);
             lines.forEach(line => {
                 if (itemY + this.layout.lineHeight > y + height - this.layout.padding) {
@@ -271,7 +257,7 @@ class BMCRenderer {
                 itemY += this.layout.lineHeight;
             });
             
-            itemY += 4; // Small gap between items
+            itemY += 3; // Small gap between items
         });
     }
 
