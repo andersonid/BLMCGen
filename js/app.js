@@ -34,8 +34,6 @@ class BMCApp {
             'exportBtn': i18n.t('export'),
             'shareBtn': i18n.t('share'),
             'saveBtn': i18n.t('save'),
-            'refreshBtn': i18n.t('refresh'),
-            'downloadBtn': i18n.t('download'),
             'zoomOutBtn': i18n.t('zoom-out'),
             'zoomInBtn': i18n.t('zoom-in'),
             'fitBtn': i18n.t('fit-screen')
@@ -252,14 +250,7 @@ class BMCApp {
             this.fitToScreen();
         });
         
-        // Canvas actions
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            this.render();
-        });
-        
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            this.downloadPNG();
-        });
+
         
         // Header actions
         document.getElementById('exportBtn').addEventListener('click', () => {

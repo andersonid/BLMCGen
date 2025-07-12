@@ -24,8 +24,6 @@ class I18n {
                 'share': 'Share',
                 'save': 'Save',
                 'code': 'Code',
-                'refresh': 'Refresh',
-                'download': 'Download PNG',
                 'zoom-out': 'Zoom Out',
                 'zoom-in': 'Zoom In',
                 'fit-screen': 'Fit to Screen'
@@ -51,8 +49,6 @@ class I18n {
                 'share': 'Compartilhar',
                 'save': 'Salvar',
                 'code': 'Código',
-                'refresh': 'Atualizar',
-                'download': 'Baixar PNG',
                 'zoom-out': 'Reduzir',
                 'zoom-in': 'Ampliar',
                 'fit-screen': 'Ajustar à Tela'
@@ -78,8 +74,6 @@ class I18n {
                 'share': 'Compartir',
                 'save': 'Guardar',
                 'code': 'Código',
-                'refresh': 'Actualizar',
-                'download': 'Descargar PNG',
                 'zoom-out': 'Reducir',
                 'zoom-in': 'Ampliar',
                 'fit-screen': 'Ajustar a Pantalla'
