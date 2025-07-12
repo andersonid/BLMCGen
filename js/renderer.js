@@ -217,11 +217,35 @@ class BMCRenderer {
         this.ctx.font = `700 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'left';
         this.ctx.textBaseline = 'alphabetic';
-        this.ctx.fillText(
-            title, 
-            x + this.layout.padding + (icon ? this.layout.iconSize + 8 : 0), 
-            y + this.layout.padding + this.layout.sectionTitleSize
-        );
+        
+        // Calculate available width for title
+        const titleStartX = x + this.layout.padding + (icon ? this.layout.iconSize + 8 : 0);
+        const titleMaxWidth = width - this.layout.padding - (icon ? this.layout.iconSize + 8 : 0) - this.layout.padding;
+        
+        // Check if title fits in one line
+        const titleWidth = this.ctx.measureText(title).width;
+        if (titleWidth <= titleMaxWidth) {
+            // Title fits in one line
+            this.ctx.fillText(
+                title, 
+                titleStartX, 
+                y + this.layout.padding + this.layout.sectionTitleSize
+            );
+        } else {
+            // Title needs to be broken into multiple lines
+            const titleLines = this.wrapTitle(title, titleMaxWidth);
+            titleLines.forEach((line, index) => {
+                this.ctx.fillText(
+                    line, 
+                    titleStartX, 
+                    y + this.layout.padding + this.layout.sectionTitleSize + (index * (this.layout.sectionTitleSize + 2))
+                );
+            });
+        }
+        
+        // Calculate title height for proper spacing
+        const titleLines = titleWidth <= titleMaxWidth ? 1 : this.wrapTitle(title, titleMaxWidth).length;
+        const titleHeight = titleLines * (this.layout.sectionTitleSize + 2) - 2; // Remove extra spacing from last line
         
         // Draw placeholder text if no items
         if (items.length === 0) {
@@ -230,7 +254,7 @@ class BMCRenderer {
             this.ctx.fillText(
                 i18n.t('write-here'), 
                 x + this.layout.padding, 
-                y + this.layout.padding + this.layout.sectionTitleSize + 25
+                y + this.layout.padding + titleHeight + 25
             );
         }
         
@@ -238,7 +262,7 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors.text;
         this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
-        let itemY = y + this.layout.padding + this.layout.sectionTitleSize + 25;
+        let itemY = y + this.layout.padding + titleHeight + 25;
         const maxWidth = width - (this.layout.padding * 2);
         
         items.forEach((item, index) => {
@@ -289,6 +313,33 @@ class BMCRenderer {
         let currentLine = '';
         
         this.ctx.font = `400 ${this.layout.fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+        
+        words.forEach(word => {
+            const testLine = currentLine + (currentLine ? ' ' : '') + word;
+            const testWidth = this.ctx.measureText(testLine).width;
+            
+            if (testWidth > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+            } else {
+                currentLine = testLine;
+            }
+        });
+        
+        if (currentLine) {
+            lines.push(currentLine);
+        }
+        
+        return lines;
+    }
+
+    wrapTitle(title, maxWidth) {
+        const words = title.split(' ');
+        const lines = [];
+        let currentLine = '';
+        
+        // Use title font for measurement
+        this.ctx.font = `700 ${this.layout.sectionTitleSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         
         words.forEach(word => {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
