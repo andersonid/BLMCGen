@@ -145,8 +145,15 @@ class BMCRenderer {
         this.ctx.fillStyle = this.colors.title;
         this.ctx.font = `600 ${this.layout.headerFontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
         this.ctx.textAlign = 'center';
+        
+        // Determine default title based on canvas type
+        let defaultTitle = i18n.t('business-model-canvas');
+        if (data.canvasType === 'lmc') {
+            defaultTitle = i18n.t('lean-model-canvas');
+        }
+        
         this.ctx.fillText(
-            data.title || i18n.t('business-model-canvas'),
+            data.title || defaultTitle,
             this.canvas.width / 2,
             y + 35
         );

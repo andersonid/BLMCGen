@@ -66,7 +66,7 @@ class BMCParser {
             });
 
             let currentSection = null;
-            let isInBMC = false;
+            let isInCanvas = false;
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
@@ -76,13 +76,13 @@ class BMCParser {
                     continue;
                 }
 
-                // Check for BMC start
-                if (line === 'bmc') {
-                    isInBMC = true;
+                // Check for BMC or LMC start
+                if (line === 'bmc' || line === 'lmc') {
+                    isInCanvas = true;
                     continue;
                 }
 
-                if (!isInBMC) {
+                if (!isInCanvas) {
                     continue;
                 }
 
