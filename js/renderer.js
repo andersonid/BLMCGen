@@ -300,18 +300,18 @@ class BMCRenderer {
 
     getSectionLayout(canvasType) {
         if (canvasType === 'lmc') {
-            // Lean Model Canvas layout
+            // Lean Model Canvas layout - usando as mesmas medidas do BMC
             return [
                 // Row 1 (Top)
-                { id: 'problem', x: 0, y: 0, width: 1, height: 1 },
+                { id: 'problem', x: 0, y: 0, width: 1, height: 2 },
                 { id: 'solution', x: 1, y: 0, width: 1, height: 1 },
-                { id: 'unique-value-proposition', x: 2, y: 0, width: 1, height: 1 },
+                { id: 'unique-value-proposition', x: 2, y: 0, width: 1, height: 2 },
                 { id: 'unfair-advantage', x: 3, y: 0, width: 1, height: 1 },
-                { id: 'customer-segments', x: 4, y: 0, width: 1, height: 1 },
+                { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2 },
                 
                 // Row 2 (Middle)
-                { id: 'key-metrics', x: 0, y: 1, width: 1, height: 1 },
-                { id: 'channels', x: 4, y: 1, width: 1, height: 1 },
+                { id: 'key-metrics', x: 1, y: 1, width: 1, height: 1 },
+                { id: 'channels', x: 3, y: 1, width: 1, height: 1 },
                 
                 // Row 3 (Bottom) - Full width sections
                 { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1 },
