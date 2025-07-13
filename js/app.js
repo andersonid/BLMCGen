@@ -28,6 +28,17 @@ class BMCApp {
         this.render(); // Re-render canvas with new language
     }
 
+    updateCanvasTab(canvasType) {
+        const canvasTab = document.getElementById('canvasTab');
+        if (canvasTab) {
+            if (canvasType === 'lmc') {
+                canvasTab.innerHTML = `📊 ${i18n.t('lean-model-canvas')}`;
+            } else {
+                canvasTab.innerHTML = `📊 ${i18n.t('business-model-canvas')}`;
+            }
+        }
+    }
+
     updateUILanguage() {
         // Update button texts and titles
         const elements = {
@@ -419,7 +430,8 @@ cost-structure:
             const code = this.editor.getValue();
             const data = this.parser.parse(code);
             this.renderer.render(data);
-            this.updateStatus('Ready');
+            this.updateCanvasTab(data.canvasType || 'bmc');
+            this.updateStatus(i18n.t('ready'));
         } catch (error) {
             console.error('Rendering error:', error);
             this.showError('Error rendering canvas: ' + error.message);

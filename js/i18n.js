@@ -15,9 +15,17 @@ class I18n {
                 'cost-structure': 'COST STRUCTURE',
                 'revenue-streams': 'REVENUE STREAMS',
                 
+                // LMC Section Titles
+                'problem': 'PROBLEM',
+                'solution': 'SOLUTION',
+                'unique-value-proposition': 'UNIQUE VALUE PROPOSITION',
+                'unfair-advantage': 'UNFAIR ADVANTAGE',
+                'key-metrics': 'KEY METRICS',
+                
                 // UI Elements
                 'write-here': 'Write here',
                 'business-model-canvas': 'Business Model Canvas',
+                'lean-model-canvas': 'Lean Model Canvas',
                 'ready': 'Ready',
                 'developed-by': 'Developed by',
                 'export': 'Export',
@@ -40,9 +48,17 @@ class I18n {
                 'cost-structure': 'ESTRUTURA DE CUSTOS',
                 'revenue-streams': 'FONTES DE RECEITA',
                 
+                // LMC Section Titles
+                'problem': 'PROBLEMA',
+                'solution': 'SOLUÇÃO',
+                'unique-value-proposition': 'PROPOSTA ÚNICA DE VALOR',
+                'unfair-advantage': 'VANTAGEM COMPETITIVA',
+                'key-metrics': 'MÉTRICAS-CHAVE',
+                
                 // UI Elements
                 'write-here': 'Escreva aqui',
-                'business-model-canvas': 'Modelo de Negócio Canvas',
+                'business-model-canvas': 'Business Model Canvas',
+                'lean-model-canvas': 'Lean Model Canvas',
                 'ready': 'Pronto',
                 'developed-by': 'Desenvolvido por',
                 'export': 'Exportar',
@@ -65,9 +81,17 @@ class I18n {
                 'cost-structure': 'ESTRUCTURA DE COSTOS',
                 'revenue-streams': 'FUENTES DE INGRESOS',
                 
+                // LMC Section Titles
+                'problem': 'PROBLEMA',
+                'solution': 'SOLUCIÓN',
+                'unique-value-proposition': 'PROPUESTA ÚNICA DE VALOR',
+                'unfair-advantage': 'VENTAJA COMPETITIVA',
+                'key-metrics': 'MÉTRICAS CLAVE',
+                
                 // UI Elements
                 'write-here': 'Escriba aquí',
-                'business-model-canvas': 'Modelo de Negocio Canvas',
+                'business-model-canvas': 'Business Model Canvas',
+                'lean-model-canvas': 'Lean Model Canvas',
                 'ready': 'Listo',
                 'developed-by': 'Desarrollado por',
                 'export': 'Exportar',

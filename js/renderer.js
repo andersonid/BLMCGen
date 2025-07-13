@@ -26,7 +26,7 @@ class BMCRenderer {
         
         // Color scheme - Soft and transparent professional colors
         this.colors = {
-            // Section colors with transparency - soft pastels
+            // BMC Section colors with transparency - soft pastels
             'key-partnerships': 'rgba(255, 159, 67, 0.6)',       // Soft orange
             'key-activities': 'rgba(116, 102, 204, 0.6)',        // Soft purple
             'key-resources': 'rgba(106, 176, 139, 0.6)',         // Soft green
@@ -36,6 +36,13 @@ class BMCRenderer {
             'customer-segments': 'rgba(161, 196, 253, 0.6)',     // Soft blue
             'cost-structure': 'rgba(129, 207, 224, 0.6)',        // Soft cyan
             'revenue-streams': 'rgba(255, 154, 162, 0.6)',       // Soft pink
+            
+            // LMC Section colors with transparency - complementary palette
+            'problem': 'rgba(255, 107, 107, 0.6)',               // Soft red
+            'solution': 'rgba(106, 176, 139, 0.6)',              // Soft green
+            'unique-value-proposition': 'rgba(255, 206, 84, 0.6)', // Soft yellow
+            'unfair-advantage': 'rgba(116, 102, 204, 0.6)',      // Soft purple
+            'key-metrics': 'rgba(129, 207, 224, 0.6)',           // Soft cyan
             
             // UI colors
             background: '#ffffff',
@@ -49,6 +56,7 @@ class BMCRenderer {
         
         // Icons for each section (more subtle)
         this.icons = {
+            // BMC Icons
             'key-partnerships': '🤝',
             'key-activities': '⚡',
             'key-resources': '🔑',
@@ -57,7 +65,14 @@ class BMCRenderer {
             'channels': '📱',
             'customer-segments': '👥',
             'cost-structure': '💰',
-            'revenue-streams': '💰'
+            'revenue-streams': '💰',
+            
+            // LMC Icons
+            'problem': '❗',
+            'solution': '💡',
+            'unique-value-proposition': '⭐',
+            'unfair-advantage': '🏆',
+            'key-metrics': '📊'
         };
     }
 
@@ -152,23 +167,8 @@ class BMCRenderer {
         const startY = this.layout.headerHeight + this.layout.margin;
         const startX = this.layout.margin;
         
-        // Define section positions following exact BMC methodology (no gaps)
-        const sections = [
-            // Row 1 (Top)
-            { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2 },
-            { id: 'key-activities', x: 1, y: 0, width: 1, height: 1 },
-            { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2 },
-            { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1 },
-            { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2 },
-            
-            // Row 2 (Middle)
-            { id: 'key-resources', x: 1, y: 1, width: 1, height: 1 },
-            { id: 'channels', x: 3, y: 1, width: 1, height: 1 },
-            
-            // Row 3 (Bottom) - Full width sections
-            { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1 },
-            { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1 }
-        ];
+        // Get sections layout based on canvas type
+        const sections = this.getSectionLayout(data.canvasType || 'bmc');
         
         sections.forEach(section => {
             const x = startX + (section.x * sectionWidth);
@@ -291,7 +291,45 @@ class BMCRenderer {
         });
     }
 
-
+    getSectionLayout(canvasType) {
+        if (canvasType === 'lmc') {
+            // Lean Model Canvas layout
+            return [
+                // Row 1 (Top)
+                { id: 'problem', x: 0, y: 0, width: 1, height: 1 },
+                { id: 'solution', x: 1, y: 0, width: 1, height: 1 },
+                { id: 'unique-value-proposition', x: 2, y: 0, width: 1, height: 1 },
+                { id: 'unfair-advantage', x: 3, y: 0, width: 1, height: 1 },
+                { id: 'customer-segments', x: 4, y: 0, width: 1, height: 1 },
+                
+                // Row 2 (Middle)
+                { id: 'key-metrics', x: 0, y: 1, width: 1, height: 1 },
+                { id: 'channels', x: 4, y: 1, width: 1, height: 1 },
+                
+                // Row 3 (Bottom) - Full width sections
+                { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1 },
+                { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1 }
+            ];
+        } else {
+            // Business Model Canvas layout (default)
+            return [
+                // Row 1 (Top)
+                { id: 'key-partnerships', x: 0, y: 0, width: 1, height: 2 },
+                { id: 'key-activities', x: 1, y: 0, width: 1, height: 1 },
+                { id: 'value-propositions', x: 2, y: 0, width: 1, height: 2 },
+                { id: 'customer-relationships', x: 3, y: 0, width: 1, height: 1 },
+                { id: 'customer-segments', x: 4, y: 0, width: 1, height: 2 },
+                
+                // Row 2 (Middle)
+                { id: 'key-resources', x: 1, y: 1, width: 1, height: 1 },
+                { id: 'channels', x: 3, y: 1, width: 1, height: 1 },
+                
+                // Row 3 (Bottom) - Full width sections
+                { id: 'cost-structure', x: 0, y: 2, width: 2.5, height: 1 },
+                { id: 'revenue-streams', x: 2.5, y: 2, width: 2.5, height: 1 }
+            ];
+        }
+    }
 
     drawRoundedRect(x, y, width, height, radius) {
         this.ctx.beginPath();

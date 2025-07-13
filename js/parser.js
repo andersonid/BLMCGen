@@ -1,7 +1,7 @@
-// BMC Markdown Parser
+// EZCanvas Parser - Support for both BMC and LMC
 class BMCParser {
     constructor() {
-        this.sections = [
+        this.bmcSections = [
             'customer-segments',
             'value-propositions', 
             'channels',
@@ -12,6 +12,43 @@ class BMCParser {
             'key-partnerships',
             'cost-structure'
         ];
+        
+        this.lmcSections = [
+            'problem',
+            'solution',
+            'unique-value-proposition',
+            'unfair-advantage',
+            'customer-segments',
+            'key-metrics',
+            'channels',
+            'cost-structure',
+            'revenue-streams'
+        ];
+        
+        this.sections = [...this.bmcSections, ...this.lmcSections];
+    }
+
+    detectCanvasType(data) {
+        const usedSections = Object.keys(data.sections).filter(section => 
+            data.sections[section] && data.sections[section].length > 0
+        );
+        
+        const bmcScore = usedSections.filter(section => this.bmcSections.includes(section)).length;
+        const lmcScore = usedSections.filter(section => this.lmcSections.includes(section)).length;
+        
+        // Check for LMC-specific sections that don't exist in BMC
+        const lmcSpecificSections = ['problem', 'solution', 'unique-value-proposition', 'unfair-advantage', 'key-metrics'];
+        const hasLmcSpecific = usedSections.some(section => lmcSpecificSections.includes(section));
+        
+        // Check for BMC-specific sections that don't exist in LMC
+        const bmcSpecificSections = ['value-propositions', 'customer-relationships', 'key-resources', 'key-activities', 'key-partnerships'];
+        const hasBmcSpecific = usedSections.some(section => bmcSpecificSections.includes(section));
+        
+        if (hasLmcSpecific || (lmcScore > bmcScore && !hasBmcSpecific)) {
+            return 'lmc';
+        }
+        
+        return 'bmc'; // Default to BMC
     }
 
     parse(code) {
@@ -76,6 +113,9 @@ class BMCParser {
                 }
             }
 
+            // Detect canvas type
+            result.canvasType = this.detectCanvasType(result);
+            
             return result;
         } catch (error) {
             throw new Error('Parser error: ' + error.message);
@@ -181,8 +221,48 @@ class BMCParser {
         return colors[section] || '#CCCCCC';
     }
 
-    getTemplate() {
-        return `bmc
+    getTemplate(type = 'bmc') {
+        if (type === 'lmc') {
+            return `lmc
+title: Meu Modelo Lean
+description: Descrição do modelo lean
+
+problem:
+  - Problema 1
+  - Problema 2
+
+solution:
+  - Solução 1
+  - Solução 2
+
+unique-value-proposition:
+  - Proposta única de valor
+
+unfair-advantage:
+  - Vantagem competitiva 1
+  - Vantagem competitiva 2
+
+customer-segments:
+  - Segmento de cliente 1
+  - Segmento de cliente 2
+
+key-metrics:
+  - Métrica-chave 1
+  - Métrica-chave 2
+
+channels:
+  - Canal 1
+  - Canal 2
+
+cost-structure:
+  - Custo 1
+  - Custo 2
+
+revenue-streams:
+  - Fonte de receita 1
+  - Fonte de receita 2`;
+        } else {
+            return `bmc
 title: Meu Modelo de Negócio
 description: Descrição do modelo de negócio
 
@@ -221,5 +301,6 @@ key-partnerships:
 cost-structure:
   - Custo 1
   - Custo 2`;
+        }
     }
 } 
