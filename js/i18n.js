@@ -32,6 +32,8 @@ class I18n {
                 'share': 'Share',
                 'save': 'Save',
                 'code': 'Code',
+                'bmc-example': 'BMC Example',
+                'lmc-example': 'LMC Example',
                 'zoom-out': 'Zoom Out',
                 'zoom-in': 'Zoom In',
                 'fit-screen': 'Fit to Screen'
@@ -65,6 +67,8 @@ class I18n {
                 'share': 'Compartilhar',
                 'save': 'Salvar',
                 'code': 'Código',
+                'bmc-example': 'Exemplo BMC',
+                'lmc-example': 'Exemplo LMC',
                 'zoom-out': 'Reduzir',
                 'zoom-in': 'Ampliar',
                 'fit-screen': 'Ajustar à Tela'
@@ -98,6 +102,8 @@ class I18n {
                 'share': 'Compartir',
                 'save': 'Guardar',
                 'code': 'Código',
+                'bmc-example': 'Ejemplo BMC',
+                'lmc-example': 'Ejemplo LMC',
                 'zoom-out': 'Reducir',
                 'zoom-in': 'Ampliar',
                 'fit-screen': 'Ajustar a Pantalla'
