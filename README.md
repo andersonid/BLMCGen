@@ -1,6 +1,6 @@
-# BMC Markdown
+# BLMCGen
 
-**Business Model Canvas Generator com Markdown**
+**Business & Lean Model Canvas Generator**
 
 Uma ferramenta web para criar Business Model Canvas de forma rápida e visual usando sintaxe markdown, inspirada no Mermaid.
 

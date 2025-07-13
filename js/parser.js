@@ -1,4 +1,4 @@
-// EZCanvas Parser - Support for both BMC and LMC
+// BLMCGen Parser - Support for both BMC and LMC
 class BMCParser {
     constructor() {
         this.bmcSections = [
