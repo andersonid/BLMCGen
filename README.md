@@ -1,22 +1,28 @@
-# BLMCGen
+# BLMCGen v2.1
 
 **Business & Lean Model Canvas Generator**
 
 Uma ferramenta web moderna para criar Business Model Canvas (BMC) e Lean Model Canvas (LMC) de forma rápida e visual usando sintaxe markdown, inspirada no Mermaid.
 
-## 🚀 Funcionalidades Implementadas
+## 🚀 Funcionalidades Implementadas v2.1
 
 - ✅ **Editor de código** com Monaco Editor (mesmo do VS Code)
 - ✅ **Suporte duplo**: Business Model Canvas (BMC) e Lean Model Canvas (LMC)
 - ✅ **Detecção automática** do tipo de canvas baseado no conteúdo
 - ✅ **Visualização em tempo real** com renderização em Canvas HTML5
 - ✅ **Interface split-screen** estilo Mermaid Live Editor
+- ✅ **Sistema de múltiplas abas de código** - NOVO! 🎉
+  - Criar, renomear e fechar abas de código
+  - Auto-save em localStorage
+  - Troca entre abas preservando conteúdo
 - ✅ **Sistema de abas**: Código (editável), Exemplo BMC (readonly), Exemplo LMC (readonly)
+- ✅ **Proteção de código do usuário** - exemplos não sobrescrevem código editável
 - ✅ **Exportação** para PNG e JPEG
 - ✅ **Zoom** e controles de visualização
 - ✅ **Suporte multi-idioma** (Português, Inglês, Espanhol)
-- ✅ **Layout responsivo** para mobile e desktop
+- ✅ **Layout responsivo** para mobile e desktop com suporte a zoom alto (125%+)
 - ✅ **Exemplos educativos** com explicações e perguntas orientadoras
+- ✅ **Persistência automática** de código em localStorage
 
 ## 📋 Sintaxe Suportada
 
@@ -162,15 +168,31 @@ revenue-streams:
    php -S localhost:8000
    ```
 
-3. **Acesse a aplicação**:
-   - Abra http://localhost:8000 no navegador
+3. **Acesse no navegador**: `http://localhost:8000`
 
-4. **Comece a usar**:
-   - **Aba Código**: Digite sua sintaxe BMC ou LMC
-   - **Aba Exemplo BMC**: Veja um exemplo completo do Netflix
-   - **Aba Exemplo LMC**: Veja um exemplo completo do Uber
-   - O canvas é renderizado automaticamente em tempo real
-   - Use os botões para exportar, ajustar zoom, etc.
+### 📝 Usando as Múltiplas Abas
+
+1. **Criar nova aba de código**:
+   - Clique no botão `+` ao lado das abas
+   - Uma nova aba será criada automaticamente
+
+2. **Renomear aba**:
+   - Duplo clique no nome da aba
+   - Digite o novo nome e pressione Enter
+
+3. **Trabalhar com múltiplos projetos**:
+   - Use cada aba para um projeto diferente
+   - O conteúdo é salvo automaticamente
+   - Abas são restauradas ao recarregar a página
+
+4. **Ver exemplos**:
+   - Clique em "BMC Example" para ver exemplo da Netflix
+   - Clique em "LMC Example" para ver exemplo do TamborEco
+   - Exemplos não afetam seu código nas abas editáveis
+
+5. **Voltar ao seu código**:
+   - Clique na aba "Code" para voltar às suas abas editáveis
+   - Todo seu código estará preservado
 
 ## 📱 Interface
 
@@ -214,6 +236,28 @@ revenue-streams:
 - 🟪 **Estrutura de Custos**: Lilás
 - 🟩 **Fontes de Receita**: Verde claro
 
+## 🔄 Sistema de Múltiplas Abas v2.1
+
+### 📝 Abas de Código Editáveis
+- **Criar nova aba**: Clique no botão `+`
+- **Renomear aba**: Duplo clique no nome da aba
+- **Fechar aba**: Clique no botão `×` (mínimo de 1 aba)
+- **Trocar entre abas**: Clique simples na aba desejada
+- **Auto-save**: Conteúdo salvo automaticamente no localStorage
+- **Persistência**: Abas restauradas ao recarregar a página
+
+### 📚 Abas de Exemplo (Somente Leitura)
+- **BMC Example**: Exemplo completo da Netflix
+- **LMC Example**: Exemplo completo do TamborEco
+- **Proteção**: Exemplos não afetam código das abas editáveis
+- **Educativo**: Inclui comentários explicativos e perguntas orientadoras
+
+### 🔒 Proteção de Dados
+- Código do usuário **nunca é sobrescrito** pelos exemplos
+- Cada aba mantém seu conteúdo independente
+- Auto-save funciona apenas nas abas de código editáveis
+- Troca entre abas preserva todo o conteúdo
+
 ## 🌍 Suporte Multi-idioma
 
 - **Português** (padrão)
@@ -228,26 +272,23 @@ Tradução completa de:
 
 ## 🎯 Roadmap
 
-### ✅ Versão Atual (v2.0)
+### ✅ Versão Atual (v2.1)
 - [x] Editor Monaco com syntax highlighting
 - [x] Suporte completo a BMC e LMC
 - [x] Detecção automática de tipo
+- [x] Sistema de múltiplas abas de código
+- [x] Auto-save e persistência em localStorage
+- [x] Proteção de código do usuário
 - [x] Sistema de abas com exemplos
 - [x] Exportação PNG/JPEG
 - [x] Suporte multi-idioma
-- [x] Interface responsiva
+- [x] Interface responsiva com suporte a zoom alto
 - [x] Exemplos educativos
 
 ### 🔄 Próximas Versões
-- [ ] **v2.1**: Salvar/Carregar projetos (localStorage)
-- [ ] **v2.2**: Themes e personalização de cores
-- [ ] **v2.3**: Exportação para PDF e SVG
-- [ ] **v2.4**: Modo escuro/claro
-- [ ] **v3.0**: Backend e banco de dados
-- [ ] **v3.1**: Autenticação de usuários
-- [ ] **v3.2**: Galeria de templates
-- [ ] **v3.3**: Colaboração em tempo real
-- [ ] **v3.4**: Integração com ferramentas externas
+- [ ] **v2.2**: Salvar/Carregar projetos nomeados
+- [ ] **v2.3**: Themes e personalização de cores
+- [ ] **v2.4**: Exportação para PDF e SVG
 
 ## 🤝 Contribuindo
 
