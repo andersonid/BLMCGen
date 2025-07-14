@@ -2,20 +2,25 @@
 
 **Business & Lean Model Canvas Generator**
 
-Uma ferramenta web para criar Business Model Canvas de forma rápida e visual usando sintaxe markdown, inspirada no Mermaid.
+Uma ferramenta web moderna para criar Business Model Canvas (BMC) e Lean Model Canvas (LMC) de forma rápida e visual usando sintaxe markdown, inspirada no Mermaid.
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Implementadas
 
-- ✅ **Editor de código** com syntax highlighting
-- ✅ **Visualização em tempo real** do Business Model Canvas
-- ✅ **Sintaxe markdown** simples e intuitiva
+- ✅ **Editor de código** com Monaco Editor (mesmo do VS Code)
+- ✅ **Suporte duplo**: Business Model Canvas (BMC) e Lean Model Canvas (LMC)
+- ✅ **Detecção automática** do tipo de canvas baseado no conteúdo
+- ✅ **Visualização em tempo real** com renderização em Canvas HTML5
 - ✅ **Interface split-screen** estilo Mermaid Live Editor
-- ✅ **Exportação** para PNG
+- ✅ **Sistema de abas**: Código (editável), Exemplo BMC (readonly), Exemplo LMC (readonly)
+- ✅ **Exportação** para PNG e JPEG
 - ✅ **Zoom** e controles de visualização
-- ✅ **Responsivo** para mobile e desktop
+- ✅ **Suporte multi-idioma** (Português, Inglês, Espanhol)
+- ✅ **Layout responsivo** para mobile e desktop
+- ✅ **Exemplos educativos** com explicações e perguntas orientadoras
 
-## 📋 Sintaxe
+## 📋 Sintaxe Suportada
 
+### Business Model Canvas (BMC)
 ```bmc
 bmc
 title: Nome do seu negócio
@@ -58,8 +63,51 @@ cost-structure:
   - Custo 2
 ```
 
-## 🎯 Os 9 Componentes do Business Model Canvas
+### Lean Model Canvas (LMC)
+```lmc
+lmc
+title: Nome da sua startup
+description: Breve descrição da solução
 
+problem:
+  - Problema 1
+  - Problema 2
+
+solution:
+  - Solução 1
+  - Solução 2
+
+unique-value-proposition:
+  - Proposta única de valor
+
+unfair-advantage:
+  - Vantagem competitiva 1
+  - Vantagem competitiva 2
+
+customer-segments:
+  - Segmento de cliente 1
+  - Segmento de cliente 2
+
+key-metrics:
+  - Métrica-chave 1
+  - Métrica-chave 2
+
+channels:
+  - Canal 1
+  - Canal 2
+
+cost-structure:
+  - Custo 1
+  - Custo 2
+
+revenue-streams:
+  - Fonte de receita 1
+  - Fonte de receita 2
+```
+
+## 🎯 Componentes dos Canvas
+
+### Business Model Canvas (9 blocos)
 | Componente | Descrição |
 |------------|-----------|
 | **customer-segments** | Segmentos de Clientes - Para quem criamos valor? |
@@ -72,49 +120,81 @@ cost-structure:
 | **key-partnerships** | Parcerias-Chave - Quem são nossos parceiros? |
 | **cost-structure** | Estrutura de Custos - Quais são os custos principais? |
 
+### Lean Model Canvas (9 blocos)
+| Componente | Descrição |
+|------------|-----------|
+| **problem** | Problema - Quais problemas você está resolvendo? |
+| **solution** | Solução - Como você resolve esses problemas? |
+| **unique-value-proposition** | Proposta Única de Valor - O que te torna único? |
+| **unfair-advantage** | Vantagem Competitiva - O que você tem que outros não podem copiar? |
+| **customer-segments** | Segmentos de Clientes - Para quem você está construindo? |
+| **key-metrics** | Métricas-Chave - Como você mede o sucesso? |
+| **channels** | Canais - Como você alcança seus clientes? |
+| **cost-structure** | Estrutura de Custos - Quais são seus custos principais? |
+| **revenue-streams** | Fontes de Receita - Como você ganha dinheiro? |
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5** - Estrutura da aplicação
 - **CSS3** - Estilização e layout responsivo
-- **JavaScript (ES6+)** - Lógica da aplicação
-- **Monaco Editor** - Editor de código (mesmo do VS Code)
-- **Canvas HTML5** - Renderização do Business Model Canvas
+- **JavaScript (ES6+)** - Lógica da aplicação e módulos
+- **Monaco Editor** - Editor de código profissional
+- **Canvas HTML5** - Renderização dos canvas
+- **Arquitetura modular** - Parser, Renderer e App separados
 
 ## 🚀 Como Usar
 
 1. **Clone o repositório**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/andersonid/BMCMarkdown.git
    cd BMCMarkdown
    ```
 
-2. **Abra o arquivo HTML**:
+2. **Execute um servidor local**:
    ```bash
-   # Abra index.html em um navegador
-   # Ou use um servidor local:
+   # Python 3
    python -m http.server 8000
-   # Acesse: http://localhost:8000
+   
+   # Node.js
+   npx http-server
+   
+   # PHP
+   php -S localhost:8000
    ```
 
-3. **Comece a usar**:
-   - Digite sua sintaxe BMC no editor à esquerda
-   - Veja o canvas sendo gerado em tempo real à direita
-   - Use os botões para exportar, formatar código, etc.
+3. **Acesse a aplicação**:
+   - Abra http://localhost:8000 no navegador
+
+4. **Comece a usar**:
+   - **Aba Código**: Digite sua sintaxe BMC ou LMC
+   - **Aba Exemplo BMC**: Veja um exemplo completo do Netflix
+   - **Aba Exemplo LMC**: Veja um exemplo completo do Uber
+   - O canvas é renderizado automaticamente em tempo real
+   - Use os botões para exportar, ajustar zoom, etc.
 
 ## 📱 Interface
 
-A interface é dividida em 3 partes principais:
+### Sistema de Abas
+- **📝 Código**: Editor principal (editável) - preserva alterações do usuário
+- **💼 Exemplo BMC**: Exemplo do Netflix (somente leitura)
+- **🚀 Exemplo LMC**: Exemplo do Uber (somente leitura)
 
-- **Header**: Título, botões de ação (Export, Share, Save)
-- **Editor Panel**: Editor de código com syntax highlighting
-- **Preview Panel**: Visualização do Business Model Canvas
+### Painel Principal
+- **Header**: Título, seletor de idioma, controles de zoom, botões de exportação
+- **Editor Panel**: Monaco Editor com syntax highlighting
+- **Preview Panel**: Visualização do canvas com detecção automática de tipo
+
+### Funcionalidades Avançadas
+- **Detecção automática**: Identifica BMC vs LMC baseado nas seções utilizadas
+- **Títulos dinâmicos**: Muda entre "Business Model Canvas" e "Lean Model Canvas"
+- **Preservação de estado**: Código do usuário é mantido ao trocar abas
+- **Exemplos educativos**: Incluem perguntas orientadoras e explicações
 
 ## 🎨 Cores das Seções
 
-Cada seção do BMC tem uma cor específica para facilitar a identificação:
-
+### Business Model Canvas
 - 🔴 **Segmentos de Clientes**: Vermelho
-- 🟢 **Proposições de Valor**: Verde-azulado
+- 🟢 **Proposições de Valor**: Verde-azulado  
 - 🔵 **Canais**: Azul
 - 🟦 **Relacionamento**: Verde claro
 - 🟡 **Fontes de Receita**: Amarelo
@@ -123,23 +203,51 @@ Cada seção do BMC tem uma cor específica para facilitar a identificação:
 - 🟨 **Parcerias-Chave**: Amarelo dourado
 - 🟪 **Estrutura de Custos**: Lilás
 
+### Lean Model Canvas
+- 🔴 **Problema**: Vermelho
+- 🟢 **Solução**: Verde
+- 🔵 **Proposta Única de Valor**: Azul
+- 🟣 **Vantagem Competitiva**: Roxo
+- 🟨 **Segmentos de Clientes**: Amarelo
+- 🟦 **Métricas-Chave**: Azul claro
+- 🟡 **Canais**: Amarelo
+- 🟪 **Estrutura de Custos**: Lilás
+- 🟩 **Fontes de Receita**: Verde claro
+
+## 🌍 Suporte Multi-idioma
+
+- **Português** (padrão)
+- **English**
+- **Español**
+
+Tradução completa de:
+- Interface do usuário
+- Títulos das seções
+- Exemplos educativos
+- Mensagens do sistema
+
 ## 🎯 Roadmap
 
-### Versão Atual (v1.0)
-- [x] Editor básico com syntax highlighting
-- [x] Renderização do BMC em Canvas
-- [x] Exportação para PNG
+### ✅ Versão Atual (v2.0)
+- [x] Editor Monaco com syntax highlighting
+- [x] Suporte completo a BMC e LMC
+- [x] Detecção automática de tipo
+- [x] Sistema de abas com exemplos
+- [x] Exportação PNG/JPEG
+- [x] Suporte multi-idioma
 - [x] Interface responsiva
+- [x] Exemplos educativos
 
-### Próximas Versões
-- [ ] **v1.1**: Salvar/Carregar projetos (localStorage)
-- [ ] **v1.2**: Themes e personalização de cores
-- [ ] **v1.3**: Exportação para PDF e SVG
-- [ ] **v1.4**: Colaboração em tempo real
-- [ ] **v2.0**: Backend e banco de dados
-- [ ] **v2.1**: Autenticação de usuários
-- [ ] **v2.2**: Galeria de templates
-- [ ] **v2.3**: Integração com ferramentas externas
+### 🔄 Próximas Versões
+- [ ] **v2.1**: Salvar/Carregar projetos (localStorage)
+- [ ] **v2.2**: Themes e personalização de cores
+- [ ] **v2.3**: Exportação para PDF e SVG
+- [ ] **v2.4**: Modo escuro/claro
+- [ ] **v3.0**: Backend e banco de dados
+- [ ] **v3.1**: Autenticação de usuários
+- [ ] **v3.2**: Galeria de templates
+- [ ] **v3.3**: Colaboração em tempo real
+- [ ] **v3.4**: Integração com ferramentas externas
 
 ## 🤝 Contribuindo
 
@@ -155,8 +263,16 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 🎉 Inspiração
 
-Este projeto foi inspirado no [Mermaid](https://mermaid-js.github.io/mermaid/#/) e na necessidade de uma ferramenta simples para criar Business Model Canvas de forma rápida e visual.
+Este projeto foi inspirado no [Mermaid](https://mermaid-js.github.io/mermaid/#/) e na necessidade de uma ferramenta simples para criar Business Model Canvas e Lean Model Canvas de forma rápida e visual.
+
+## 📚 Referências
+
+- [Business Model Canvas](https://www.strategyzer.com/canvas/business-model-canvas) - Alexander Osterwalder
+- [Lean Canvas](https://leanstack.com/lean-canvas) - Ash Maurya
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Microsoft
 
 ---
 
-**Desenvolvido com ❤️ para a comunidade de empreendedores e desenvolvedores** 
+**Desenvolvido com ❤️ para a comunidade de empreendedores e desenvolvedores**
+
+**🌟 Se este projeto foi útil para você, considere dar uma estrela no GitHub!** 
