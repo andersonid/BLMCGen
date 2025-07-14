@@ -382,105 +382,120 @@ revenue-streams:
 # e validação rápida de hipóteses de negócio. É mais enxuto e orientado a problemas.
 
 lmc
-title: TamborEco
-description: Ecossistema educacional que une música, tecnologia, cultura maker e inclusão social por meio de um curso prático e um kit DIY de bateria eletrônica.
+title: Uber - Aplicativo de Transporte
+description: Plataforma que conecta passageiros e motoristas para viagens urbanas
 
-# 🎯 PROBLEMA
-# Quais são os 3 principais problemas que você resolve?
-# Lista os problemas existentes que você identificou
+# ❗ PROBLEMA
+# Quais são os 3 principais problemas que você está resolvendo?
+# Liste os problemas existentes e como eles são resolvidos hoje.
+# Identifique qual é o problema #1 mais crítico.
 problem:
-  - Jovens e adultos iniciantes em música
-  - Escolas públicas, técnicas e IFs
-  - Educadores e arte-educadores
-  - ONGs e projetos sociais
-  - Espaços culturais (SESCs, CEUs, Casas de Cultura)
-  - Secretarias de Educação, Cultura e Desenvolvimento Social
-  - Empresas com programas de responsabilidade social
-  - Público maker e entusiastas da cultura digital
+  - Dificuldade de encontrar táxi em horários de pico
+  - Preços altos e não transparentes do transporte
+  - Falta de segurança e confiabilidade nos táxis
+  - Tempo de espera longo e incerteza
+  - Experiência inconsistente de atendimento
+  - Métodos de pagamento limitados
 
 # 💡 SOLUÇÃO
 # Como você resolve cada problema?
-# Principais características do seu produto/serviço
+# Qual é o Produto Mínimo Viável (MVP)?
+# Liste as 3 principais funcionalidades.
 solution:
-  - Curso completo e acessível: construa e toque sua própria bateria eletrônica
-  - Integração de música, eletrônica e software livre
-  - Kit DIY de baixo custo com materiais simples e educativos
-  - Oficinas práticas com impacto social e cultural
-  - Plataforma de formação de multiplicadores comunitários
+  - App que conecta passageiros e motoristas em tempo real
+  - Sistema de GPS para rastreamento e otimização de rotas
+  - Preços dinâmicos transparentes calculados pelo app
+  - Sistema de avaliação mútua (motorista/passageiro)
+  - Pagamento integrado sem dinheiro físico
+  - Histórico completo de viagens
 
-# 🔑 PROPOSTA DE VALOR ÚNICA
+# ⭐ PROPOSTA ÚNICA DE VALOR
 # Por que você é diferente e vale a pena comprar?
-# Promessa única que você faz aos clientes
+# Que valor você entrega? Para qual cliente?
+# Mensagem clara e convincente para o cliente.
 unique-value-proposition:
-  - Curso completo e acessível: construa e toque sua própria bateria eletrônica
-  - Integração de música, eletrônica e software livre
-  - Kit DIY de baixo custo com materiais simples e educativos
-  - Oficinas práticas com impacto social e cultural
-  - Plataforma de formação de multiplicadores comunitários
+  - "Transporte confiável ao toque de um botão"
+  - Chegada em minutos, não horas
+  - Preço justo e transparente
+  - Segurança através de rastreamento e avaliações
+  - Conveniência total: sem dinheiro, sem ligações
 
-# 🎯 VANTAGEM COMPETITIVA
-# Algo que não pode ser facilmente copiado ou comprado
-# Seu diferencial único e defensável
+# 🏆 VANTAGEM COMPETITIVA
+# Algo que não pode ser copiado ou comprado facilmente.
+# Que recursos especiais você possui?
+# Proteção contra competição (patentes, marca, etc.)
 unfair-advantage:
-  - Produção e logística dos kits
-  - Plataformas de ensino (presencial e híbrido)
-  - Equipe de criação, suporte e coordenação
-  - Material audiovisual e gráfico
-  - Bolsas para oficinas gratuitas e ações sociais
-  - Rede de oficinas e multiplicadores
+  - Efeito de rede: mais motoristas atraem mais passageiros
+  - Algoritmos patenteados de matching e preços dinâmicos
+  - Primeira empresa no mercado (vantagem do pioneiro)
+  - Dados massivos de mobilidade urbana
+  - Marca global reconhecida e confiável
+  - Capital e recursos para expansão rápida
 
 # 👥 SEGMENTOS DE CLIENTES
-# Para quem você está construindo?
-# Seus clientes e usuários mais importantes
+# Quem são seus primeiros clientes? (early adopters)
+# Como você define seu cliente ideal?
+# Para qual nicho específico você está construindo?
 customer-segments:
-  - Jovens e adultos iniciantes em música
-  - Escolas públicas, técnicas e IFs
-  - Educadores e arte-educadores
-  - ONGs e projetos sociais
-  - Espaços culturais (SESCs, CEUs, Casas de Cultura)
-  - Secretarias de Educação, Cultura e Desenvolvimento Social
-  - Empresas com programas de responsabilidade social
-  - Público maker e entusiastas da cultura digital
+  - Profissionais urbanos (25-45 anos) com smartphone
+  - Pessoas que não possuem carro próprio
+  - Turistas e visitantes em cidades grandes
+  - Usuários que valorizam conveniência sobre preço
+  - Millennials tech-savvy em áreas metropolitanas
+  - Executivos que precisam de transporte confiável
 
 # 📊 MÉTRICAS-CHAVE
-# Principais números que você acompanha
 # Como você mede o sucesso?
+# Quais números direcionam seu negócio?
+# Como você rastreia suas atividades?
 key-metrics:
-  - Cursos vendidos e acessados
-  - Oficinas e programas presenciais
-  - Licenciamentos da metodologia para instituições
-  - Captação de recursos via leis de incentivo e patrocínio
+  - Número de viagens completadas por mês
+  - Taxa de crescimento de usuários ativos
+  - Tempo médio de espera do passageiro
+  - Taxa de retenção de motoristas e passageiros
+  - Receita por viagem e por usuário
+  - Net Promoter Score (NPS)
+  - Cobertura geográfica (% da cidade atendida)
+  - Tempo médio de chegada do motorista
 
-# 📢 CANAIS
+# 📱 CANAIS
 # Como você alcança seus clientes?
-# Caminhos para chegar até eles
+# Qual caminho você usa para entregá-los?
+# Como seus canais se integram? Quais funcionam melhor?
 channels:
-  - Plataforma online (cursos e conteúdo)
-  - Workshops presenciais em escolas, SESCs e ONGs
-  - Redes sociais (Instagram, YouTube, TikTok)
-  - Venda direta via e-commerce
-  - Parcerias com secretarias e projetos sociais
+  - Aplicativo móvel (iOS/Android) - principal
+  - Marketing digital e redes sociais
+  - Programa de indicação com desconto
+  - Parcerias com empresas para funcionários
+  - Eventos e ativações em pontos estratégicos
+  - PR e imprensa especializada
+  - Marketing de guerrilha em universidades
 
 # 💰 ESTRUTURA DE CUSTOS
-# Principais custos para operar o negócio
-# Custos mais importantes e operacionais
+# Quais são seus maiores custos?
+# Quais atividades/recursos são mais caros?
+# Seu modelo é direcionado por custo ou valor?
 cost-structure:
-  - Produção e logística dos kits
-  - Plataformas de ensino (presencial e híbrido)
-  - Equipe de criação, suporte e coordenação
-  - Material audiovisual e gráfico
-  - Bolsas para oficinas gratuitas e ações sociais
-  - Rede de oficinas e multiplicadores
+  - Incentivos e bonificações para motoristas
+  - Marketing e aquisição de usuários
+  - Desenvolvimento e manutenção da tecnologia
+  - Operações locais e suporte ao cliente
+  - Salários da equipe técnica e operacional
+  - Seguros e questões regulamentares
+  - Infraestrutura de servidores e dados
 
 # 💵 FONTES DE RECEITA
 # Como você ganha dinheiro?
-# Principais formas de monetização
+# Por qual valor os clientes pagam?
+# Como eles preferem pagar? Quanto cada fonte contribui?
 revenue-streams:
-  - Venda do TamborEco Kit (varejo e institucional)
-  - Venda de cursos online (individuais e combo)
-  - Oficinas e programas presenciais
-  - Licenciamentos da metodologia para instituições
-  - Captação de recursos via leis de incentivo e patrocínio`;
+  - Comissão de 20-25% sobre cada viagem
+  - Taxa de cancelamento para passageiros
+  - Taxa de conveniência em horários de pico
+  - Surge pricing (preços dinâmicos) em alta demanda
+  - Uber Premium/Black (viagens de luxo)
+  - Parcerias corporativas (Uber for Business)
+  - Receitas futuras: delivery, freight, etc.`;
     }
 
     initializeCodeTabs() {
@@ -1153,75 +1168,101 @@ revenue-streams:
         }
         
         // Re-render canvas
-        this.renderCanvas();
+        this.render();
     }
 
     loadExample() {
-        const exampleCode = `bmc
-title: Plataforma de Entrega de Comida
-description: Marketplace digital conectando restaurantes e consumidores
+        const exampleCode = `# Business Model Canvas (BMC) - Sintaxe Básica
+# Substitua os valores de exemplo pelos seus próprios dados
+
+bmc
+title: Nome do seu negócio
+description: Breve descrição do modelo de negócio
 
 customer-segments:
-  - Consumidores urbanos (25-45 anos)
-  - Famílias ocupadas
-  - Profissionais que trabalham em casa
-  - Estudantes universitários
+  - Segmento de cliente 1
+  - Segmento de cliente 2
+  - Segmento de cliente 3
 
 value-propositions:
-  - Entrega rápida (30 min)
-  - Variedade de restaurantes
-  - Preços competitivos
-  - Programa de fidelidade
-  - Avaliações e reviews
-  - Suporte via chat
+  - Proposta de valor 1
+  - Proposta de valor 2
+  - Proposta de valor 3
 
 channels:
-  - Aplicativo móvel
-  - Website
-  - Redes sociais
-  - Marketing digital
-  - Parcerias com restaurantes
+  - Canal 1
+  - Canal 2
+  - Canal 3
 
 customer-relationships:
-  - Programa de fidelidade
-  - Avaliações e reviews
-  - Suporte via chat
-  - Promoções personalizadas
+  - Tipo de relacionamento 1
+  - Tipo de relacionamento 2
+  - Tipo de relacionamento 3
 
 revenue-streams:
-  - Taxa de entrega
-  - Comissão dos restaurantes
-  - Publicidade na plataforma
-  - Assinatura premium
-  - Taxa de conveniência
+  - Fonte de receita 1
+  - Fonte de receita 2
+  - Fonte de receita 3
 
 key-resources:
-  - Plataforma tecnológica
-  - Rede de entregadores
-  - Parcerias com restaurantes
-  - Dados dos usuários
-  - Marca e reputação
+  - Recurso-chave 1
+  - Recurso-chave 2
+  - Recurso-chave 3
 
 key-activities:
-  - Desenvolvimento de software
-  - Gestão de logística
-  - Marketing e aquisição
-  - Atendimento ao cliente
-  - Análise de dados
+  - Atividade-chave 1
+  - Atividade-chave 2
+  - Atividade-chave 3
 
 key-partnerships:
-  - Restaurantes
-  - Entregadores independentes
-  - Processadores de pagamento
-  - Fornecedores de tecnologia
-  - Influenciadores digitais
+  - Parceria-chave 1
+  - Parceria-chave 2
+  - Parceria-chave 3
 
 cost-structure:
-  - Desenvolvimento tecnológico
-  - Marketing e publicidade
-  - Operações e logística
-  - Atendimento ao cliente
-  - Processamento de pagamentos`;
+  - Custo 1
+  - Custo 2
+  - Custo 3
+
+# Para Lean Model Canvas (LMC), use:
+# lmc
+# title: Nome da sua startup
+# description: Breve descrição da solução
+# 
+# problem:
+#   - Problema 1
+#   - Problema 2
+# 
+# solution:
+#   - Solução 1
+#   - Solução 2
+# 
+# unique-value-proposition:
+#   - Proposta única de valor
+# 
+# unfair-advantage:
+#   - Vantagem competitiva 1
+#   - Vantagem competitiva 2
+# 
+# customer-segments:
+#   - Segmento de cliente 1
+#   - Segmento de cliente 2
+# 
+# key-metrics:
+#   - Métrica-chave 1
+#   - Métrica-chave 2
+# 
+# channels:
+#   - Canal 1
+#   - Canal 2
+# 
+# cost-structure:
+#   - Custo 1
+#   - Custo 2
+# 
+# revenue-streams:
+#   - Fonte de receita 1
+#   - Fonte de receita 2`;
         
         this.userCode = exampleCode;
         this.editor.setValue(exampleCode);

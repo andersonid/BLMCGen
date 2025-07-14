@@ -194,7 +194,7 @@ revenue-streams:
 
 4. **Ver exemplos**:
    - Clique em "BMC Example" para ver exemplo da Netflix
-   - Clique em "LMC Example" para ver exemplo do TamborEco
+   - Clique em "LMC Example" para ver exemplo do Uber
    - Exemplos não afetam seu código nas abas editáveis
 
 5. **Voltar ao seu código**:
@@ -255,7 +255,7 @@ revenue-streams:
 
 ### 📚 Abas de Exemplo (Somente Leitura)
 - **BMC Example**: Exemplo completo da Netflix
-- **LMC Example**: Exemplo completo do TamborEco
+- **LMC Example**: Exemplo completo do Uber
 - **Proteção**: Exemplos não afetam código das abas editáveis
 - **Educativo**: Inclui comentários explicativos e perguntas orientadoras
 
