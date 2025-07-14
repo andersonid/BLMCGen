@@ -1754,7 +1754,6 @@ revenue-streams:
     }
 
     exportToPDF() {
-        // Usar jsPDF para gerar PDF
         const canvasType = this.detectCanvasType(this.editor.getValue());
         const activeTab = this.codeTabs.get(this.activeCodeTabId);
         const tabName = activeTab ? activeTab.name : 'canvas';
@@ -1763,32 +1762,19 @@ revenue-streams:
         const cleanName = tabName.replace(/[^a-zA-Z0-9\s\-_]/g, '').replace(/\s+/g, '_');
         const fileName = `${cleanName}_${canvasType}.pdf`;
         
+        // Verificar se PDF Generator está disponível
+        if (!window.PDFGenerator) {
+            console.log('📄➡️🖼️ PDF Generator not available, using PNG fallback');
+            this.updateStatus('⚠️ PDF não disponível, baixando PNG...');
+            this.downloadPNG();
+            return;
+        }
+        
         try {
-            // Verificar se jsPDF está disponível de forma mais robusta
-            let jsPDF;
+            console.log('🔄 Generating PDF...');
             
-            // Tentar diferentes formas de acessar jsPDF
-            if (typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
-                jsPDF = window.jspdf.jsPDF;
-                console.log('✓ Found jsPDF at window.jspdf.jsPDF');
-            } else if (typeof window.jsPDF !== 'undefined') {
-                jsPDF = window.jsPDF;
-                console.log('✓ Found jsPDF at window.jsPDF');
-            } else {
-                // Mostrar informações de debug
-                console.error('❌ jsPDF not found. Available objects:');
-                console.error('window.jspdf:', window.jspdf);
-                console.error('window.jsPDF:', window.jsPDF);
-                console.error('All window props with "pdf":', Object.keys(window).filter(k => k.toLowerCase().includes('pdf')));
-                
-                // Fallback: usar downloadPNG
-                this.updateStatus('⚠️ PDF não disponível, baixando PNG...');
-                this.downloadPNG();
-                return;
-            }
-            
-            // Criar PDF no formato A4 landscape
-            const pdf = new jsPDF('landscape', 'mm', 'a4');
+            // Criar PDF usando a referência global
+            const pdf = new window.PDFGenerator('landscape', 'mm', 'a4');
             
             // Dimensões A4 landscape: 297mm x 210mm
             const pdfWidth = 297;

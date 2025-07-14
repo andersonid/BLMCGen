@@ -106,7 +106,22 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" onload="console.log('jsPDF loaded successfully')" onerror="console.error('Failed to load jsPDF')"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Verificar se jsPDF carregou e criar uma referência global mais simples
+        window.addEventListener('load', function() {
+            if (window.jspdf && window.jspdf.jsPDF) {
+                window.PDFGenerator = window.jspdf.jsPDF;
+                console.log('✅ PDF Generator ready');
+            } else if (window.jsPDF) {
+                window.PDFGenerator = window.jsPDF;
+                console.log('✅ PDF Generator ready (alt)');
+            } else {
+                console.warn('⚠️ PDF Generator not available - will fallback to PNG');
+                window.PDFGenerator = null;
+            }
+        });
+    </script>
     <script src="js/i18n.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/renderer.js"></script>
