@@ -526,6 +526,17 @@ revenue-streams:
         }
     }
 
+    clearAllData() {
+        try {
+            localStorage.removeItem(this.storageKey);
+            localStorage.removeItem(this.projectsKey);
+            localStorage.removeItem(this.codeTabsKey);
+            console.log('All BLMCGen data cleared from localStorage');
+        } catch (error) {
+            console.warn('Failed to clear all data from localStorage:', error);
+        }
+    }
+
     // Project management functions
     getProjects() {
         try {
@@ -615,6 +626,9 @@ revenue-streams:
             clearTimeout(this.saveTimeout);
         }
         
+        // Show save indicator
+        this.showSaveIndicator();
+        
         // Set new timeout to save after 1 second of inactivity
         this.saveTimeout = setTimeout(() => {
             if (this.currentTab === 'code' && this.editor && this.activeCodeTabId) {
@@ -631,8 +645,33 @@ revenue-streams:
                 this.userCode = currentCode;
                 this.saveUserCode(currentCode);
                 console.log('Auto-saved user code to localStorage');
+                
+                // Update status and hide save indicator after save
+                this.updateStatus('💾 Código salvo automaticamente');
+                this.hideSaveIndicator();
+                
+                // Clear status after 3 seconds
+                setTimeout(() => {
+                    this.updateStatus('Pronto');
+                }, 3000);
             }
         }, 1000);
+    }
+
+    showSaveIndicator() {
+        const indicator = document.getElementById('saveIndicator');
+        if (indicator) {
+            indicator.classList.add('show');
+        }
+    }
+
+    hideSaveIndicator() {
+        const indicator = document.getElementById('saveIndicator');
+        if (indicator) {
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 1500); // Show for 1.5 seconds after save
+        }
     }
 
     loadInitialContent() {
@@ -1024,6 +1063,10 @@ revenue-streams:
             }
             this.userCode = currentCode;
             this.saveUserCode(currentCode);
+            
+            // Show save indicator when switching tabs
+            this.showSaveIndicator();
+            setTimeout(() => this.hideSaveIndicator(), 500);
         }
         
         // Remove active class from all tabs
