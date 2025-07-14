@@ -11,8 +11,72 @@ class BMCApp {
         this.zoomLevel = 1;
         this.currentTab = 'code';
         this.userCode = '';
+        this.storageKey = 'blmcgen-user-code';
+        this.saveTimeout = null;
         
         this.init();
+    }
+
+    // LocalStorage functions for code persistence
+    saveUserCode(code) {
+        try {
+            localStorage.setItem(this.storageKey, code);
+        } catch (error) {
+            console.warn('Failed to save user code to localStorage:', error);
+        }
+    }
+
+    loadUserCode() {
+        try {
+            return localStorage.getItem(this.storageKey);
+        } catch (error) {
+            console.warn('Failed to load user code from localStorage:', error);
+            return null;
+        }
+    }
+
+    clearUserCode() {
+        try {
+            localStorage.removeItem(this.storageKey);
+        } catch (error) {
+            console.warn('Failed to clear user code from localStorage:', error);
+        }
+    }
+
+    debounceSave() {
+        // Clear existing timeout
+        if (this.saveTimeout) {
+            clearTimeout(this.saveTimeout);
+        }
+        
+        // Set new timeout to save after 1 second of inactivity
+        this.saveTimeout = setTimeout(() => {
+            if (this.currentTab === 'code') {
+                const currentCode = this.editor.getValue();
+                this.userCode = currentCode;
+                this.saveUserCode(currentCode);
+                console.log('Auto-saved user code to localStorage');
+            }
+        }, 1000);
+    }
+
+    loadInitialContent() {
+        // Try to load saved user code first
+        const savedCode = this.loadUserCode();
+        
+        if (savedCode && savedCode.trim() !== '') {
+            // Load saved code
+            this.userCode = savedCode;
+            this.editor.setValue(savedCode);
+            console.log('Loaded saved user code from localStorage');
+        } else {
+            // Load default example if no saved code
+            this.loadExample();
+            console.log('Loaded default example content');
+        }
+        
+        // Render the loaded content
+        this.render();
     }
 
     initLanguage() {
@@ -116,8 +180,8 @@ class BMCApp {
             // Set up event listeners
             this.setupEventListeners();
             
-            // Load example content
-            this.loadExample();
+            // Load saved code or example content
+            this.loadInitialContent();
             
             // Update status
             this.updateStatus(i18n.t('ready'));
@@ -193,6 +257,10 @@ class BMCApp {
                 // Listen for content changes
                 this.editor.onDidChangeModelContent(() => {
                     this.debounceRender();
+                    // Auto-save user code when in code tab
+                    if (this.currentTab === 'code') {
+                        this.debounceSave();
+                    }
                 });
                 
                 // Listen for cursor position changes
@@ -348,6 +416,8 @@ class BMCApp {
         // Store current code content if we're leaving the code tab
         if (this.currentTab === 'code') {
             this.userCode = this.editor.getValue();
+            // Save to localStorage
+            this.saveUserCode(this.userCode);
         }
         
         // Remove active class from all tabs
