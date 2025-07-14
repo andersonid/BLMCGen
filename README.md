@@ -146,8 +146,8 @@ revenue-streams:
 
 1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/andersonid/BMCMarkdown.git
-   cd BMCMarkdown
+   git clone https://github.com/andersonid/BLMCGen.git
+   cd BLMCGen
    ```
 
 2. **Execute um servidor local**:
