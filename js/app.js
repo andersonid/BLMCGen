@@ -1737,14 +1737,79 @@ revenue-streams:
     }
 
     downloadPNG() {
+        const canvasType = this.detectCanvasType(this.editor.getValue());
+        const activeTab = this.codeTabs.get(this.activeCodeTabId);
+        const tabName = activeTab ? activeTab.name : 'canvas';
+        
+        // Limpar nome do arquivo
+        const cleanName = tabName.replace(/[^a-zA-Z0-9\s\-_]/g, '').replace(/\s+/g, '_');
+        const fileName = `${cleanName}_${canvasType}.png`;
+        
         const link = document.createElement('a');
-        link.download = 'business-model-canvas.png';
+        link.download = fileName;
         link.href = this.canvas.toDataURL();
         link.click();
+        
+        this.updateStatus(`🖼️ Imagem ${fileName} baixada com sucesso!`);
+    }
+
+    exportToPDF() {
+        // Usar jsPDF para gerar PDF
+        const canvasType = this.detectCanvasType(this.editor.getValue());
+        const activeTab = this.codeTabs.get(this.activeCodeTabId);
+        const tabName = activeTab ? activeTab.name : 'canvas';
+        
+        // Limpar nome do arquivo
+        const cleanName = tabName.replace(/[^a-zA-Z0-9\s\-_]/g, '').replace(/\s+/g, '_');
+        const fileName = `${cleanName}_${canvasType}.pdf`;
+        
+        try {
+            // Criar PDF no formato A4 landscape
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('landscape', 'mm', 'a4');
+            
+            // Dimensões A4 landscape: 297mm x 210mm
+            const pdfWidth = 297;
+            const pdfHeight = 210;
+            
+            // Obter dados do canvas
+            const canvasData = this.canvas.toDataURL('image/png');
+            
+            // Calcular dimensões mantendo proporção
+            const canvasRatio = this.canvas.width / this.canvas.height;
+            const pdfRatio = pdfWidth / pdfHeight;
+            
+            let imgWidth, imgHeight, x, y;
+            
+            if (canvasRatio > pdfRatio) {
+                // Canvas é mais largo que o PDF
+                imgWidth = pdfWidth - 20; // margem de 10mm de cada lado
+                imgHeight = imgWidth / canvasRatio;
+                x = 10;
+                y = (pdfHeight - imgHeight) / 2;
+            } else {
+                // Canvas é mais alto que o PDF
+                imgHeight = pdfHeight - 20; // margem de 10mm de cada lado
+                imgWidth = imgHeight * canvasRatio;
+                x = (pdfWidth - imgWidth) / 2;
+                y = 10;
+            }
+            
+            // Adicionar imagem ao PDF
+            pdf.addImage(canvasData, 'PNG', x, y, imgWidth, imgHeight);
+            
+            // Salvar PDF
+            pdf.save(fileName);
+            
+            this.updateStatus(`📄 PDF ${fileName} exportado com sucesso!`);
+        } catch (error) {
+            console.error('Erro ao exportar PDF:', error);
+            this.updateStatus('❌ Erro ao exportar PDF. Verifique se a biblioteca jsPDF está carregada.');
+        }
     }
 
     exportCanvas() {
-        this.downloadPNG();
+        this.exportToPDF();
     }
 
     shareCanvas() {
@@ -1758,13 +1823,8 @@ revenue-streams:
                 });
             });
         } else {
-            // Fallback: copy to clipboard
-            this.canvas.toBlob((blob) => {
-                navigator.clipboard.write([
-                    new ClipboardItem({ 'image/png': blob })
-                ]);
-                this.updateStatus('Canvas copied to clipboard');
-            });
+            // Fallback: download PNG
+            this.downloadPNG();
         }
     }
 
