@@ -725,6 +725,8 @@ revenue-streams:
         }
     }
 
+
+
     updateUILanguage() {
         // Update button texts and titles
         const elements = {
@@ -915,6 +917,41 @@ revenue-streams:
         
         // Set initial canvas size based on paper format
         this.updateCanvasSize();
+        
+        // Verificar se o CanvasPDFGenerator está disponível
+        this.checkPDFIntegration();
+    }
+    
+    checkPDFIntegration() {
+        console.log('🔍 Verificando integração PDF...');
+        
+        if (window.CanvasPDFGenerator) {
+            console.log('✅ CanvasPDFGenerator disponível');
+            
+            if (typeof window.CanvasPDFGenerator.generatePDF === 'function') {
+                console.log('✅ Método generatePDF disponível');
+            } else {
+                console.error('❌ Método generatePDF não encontrado');
+            }
+            
+            if (typeof window.CanvasPDFGenerator.downloadCanvasAsPNG === 'function') {
+                console.log('✅ Método downloadCanvasAsPNG disponível');
+            } else {
+                console.error('❌ Método downloadCanvasAsPNG não encontrado');
+            }
+        } else {
+            console.error('❌ CanvasPDFGenerator não encontrado');
+            console.log('🔄 Tentando aguardar carregamento...');
+            
+            // Tentar novamente após 1 segundo
+            setTimeout(() => this.checkPDFIntegration(), 1000);
+        }
+        
+        if (this.canvas && this.canvas.getContext) {
+            console.log('✅ Canvas disponível:', this.canvas.width, 'x', this.canvas.height);
+        } else {
+            console.error('❌ Canvas não disponível');
+        }
     }
 
     initSplitter() {
@@ -980,8 +1017,8 @@ revenue-streams:
 
         
         // Header actions
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            this.exportCanvas();
+        document.getElementById('exportBtn').addEventListener('click', async () => {
+            await this.exportCanvas();
         });
         
         document.getElementById('shareBtn').addEventListener('click', () => {
@@ -1753,71 +1790,76 @@ revenue-streams:
         this.updateStatus(`🖼️ Imagem ${fileName} baixada com sucesso!`);
     }
 
-    exportToPDF() {
-        const canvasType = this.detectCanvasType(this.editor.getValue());
-        const activeTab = this.codeTabs.get(this.activeCodeTabId);
-        const tabName = activeTab ? activeTab.name : 'canvas';
-        
-        // Limpar nome do arquivo
-        const cleanName = tabName.replace(/[^a-zA-Z0-9\s\-_]/g, '').replace(/\s+/g, '_');
-        const fileName = `${cleanName}_${canvasType}.pdf`;
-        
-        // Verificar se PDF Generator está disponível
-        if (!window.PDFGenerator) {
-            console.log('📄➡️🖼️ PDF Generator not available, using PNG fallback');
-            this.updateStatus('⚠️ PDF não disponível, baixando PNG...');
-            this.downloadPNG();
-            return;
-        }
+    async exportToPDF() {
+        this.updateStatus('🔄 Gerando PDF real...');
         
         try {
-            console.log('🔄 Generating PDF...');
+            // Diagnóstico detalhado
+            console.log('🔍 Diagnóstico PDF:');
+            console.log('- Canvas:', this.canvas);
+            console.log('- Canvas width:', this.canvas?.width);
+            console.log('- Canvas height:', this.canvas?.height);
+            console.log('- CanvasPDFGenerator:', window.CanvasPDFGenerator);
+            console.log('- generatePDF method:', typeof window.CanvasPDFGenerator?.generatePDF);
             
-            // Criar PDF usando a referência global
-            const pdf = new window.PDFGenerator('landscape', 'mm', 'a4');
-            
-            // Dimensões A4 landscape: 297mm x 210mm
-            const pdfWidth = 297;
-            const pdfHeight = 210;
-            
-            // Obter dados do canvas
-            const canvasData = this.canvas.toDataURL('image/png');
-            
-            // Calcular dimensões mantendo proporção
-            const canvasRatio = this.canvas.width / this.canvas.height;
-            const pdfRatio = pdfWidth / pdfHeight;
-            
-            let imgWidth, imgHeight, x, y;
-            
-            if (canvasRatio > pdfRatio) {
-                // Canvas é mais largo que o PDF
-                imgWidth = pdfWidth - 20; // margem de 10mm de cada lado
-                imgHeight = imgWidth / canvasRatio;
-                x = 10;
-                y = (pdfHeight - imgHeight) / 2;
-            } else {
-                // Canvas é mais alto que o PDF
-                imgHeight = pdfHeight - 20; // margem de 10mm de cada lado
-                imgWidth = imgHeight * canvasRatio;
-                x = (pdfWidth - imgWidth) / 2;
-                y = 10;
+            // Verificar se tudo está disponível
+            if (!this.canvas) {
+                throw new Error('Canvas não está disponível');
             }
             
-            // Adicionar imagem ao PDF
-            pdf.addImage(canvasData, 'PNG', x, y, imgWidth, imgHeight);
+            if (!window.CanvasPDFGenerator) {
+                throw new Error('CanvasPDFGenerator não está disponível');
+            }
             
-            // Salvar PDF
-            pdf.save(fileName);
+            if (typeof window.CanvasPDFGenerator.generatePDF !== 'function') {
+                throw new Error('Método generatePDF não está disponível');
+            }
             
-            this.updateStatus(`📄 PDF ${fileName} exportado com sucesso!`);
+            // Usar nossa solução de PDF real com jsPDF
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `business-model-canvas-${timestamp}.pdf`;
+            
+            console.log('🔄 Tentando gerar PDF real...');
+            console.log('- Filename:', filename);
+            console.log('- Canvas dimensions:', this.canvas.width, 'x', this.canvas.height);
+            
+            await window.CanvasPDFGenerator.generatePDF(this.canvas, filename);
+            
+            this.updateStatus('✅ PDF exportado com sucesso! (Formato A4 real)');
+            
+            // Limpar status após 3 segundos
+            setTimeout(() => {
+                this.updateStatus('Pronto');
+            }, 3000);
+            
         } catch (error) {
-            console.error('Erro ao exportar PDF:', error);
-            this.updateStatus('❌ Erro ao exportar PDF. Verifique se a biblioteca jsPDF está carregada.');
+            console.error('❌ Erro na exportação PDF:', error);
+            console.error('❌ Stack trace:', error.stack);
+            this.updateStatus('⚠️ Erro ao exportar PDF. Gerando PNG A4...');
+            
+            // Fallback para PNG em formato A4
+            try {
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `business-model-canvas-${timestamp}.png`;
+                
+                console.log('🔄 Tentando PNG A4 fallback...');
+                await window.CanvasPDFGenerator.downloadCanvasAsPNG(this.canvas, filename);
+                
+                this.updateStatus('✅ PNG A4 exportado como alternativa');
+                setTimeout(() => {
+                    this.updateStatus('Pronto');
+                }, 3000);
+            } catch (pngError) {
+                console.error('❌ Erro no fallback PNG:', pngError);
+                this.updateStatus('❌ Erro na exportação');
+                // Usar PNG simples como último recurso
+                setTimeout(() => this.downloadPNG(), 500);
+            }
         }
     }
 
-    exportCanvas() {
-        this.exportToPDF();
+    async exportCanvas() {
+        await this.exportToPDF();
     }
 
     shareCanvas() {

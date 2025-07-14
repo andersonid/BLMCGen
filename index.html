@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BLMCGen - Business & Lean Model Canvas Generator</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.css">
 </head>
@@ -31,7 +32,7 @@
                 </div>
             </div>
             <div class="actions">
-                <button id="exportBtn" class="btn">📄 Export PDF</button>
+                <button id="exportBtn" class="btn">📄 Export A4</button>
                 <button id="shareBtn" class="btn">🖼️ Share PNG</button>
                 <button id="loadBtn" class="btn">📂 Load .md</button>
                 <button id="saveBtn" class="btn-primary">💾 Save .md</button>
@@ -106,22 +107,9 @@
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        // Verificar se jsPDF carregou e criar uma referência global mais simples
-        window.addEventListener('load', function() {
-            if (window.jspdf && window.jspdf.jsPDF) {
-                window.PDFGenerator = window.jspdf.jsPDF;
-                console.log('✅ PDF Generator ready');
-            } else if (window.jsPDF) {
-                window.PDFGenerator = window.jsPDF;
-                console.log('✅ PDF Generator ready (alt)');
-            } else {
-                console.warn('⚠️ PDF Generator not available - will fallback to PNG');
-                window.PDFGenerator = null;
-            }
-        });
-    </script>
+    
+    <!-- Nossa solução própria de PDF -->
+    <script src="js/simple-pdf.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/renderer.js"></script>

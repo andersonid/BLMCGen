@@ -1,10 +1,10 @@
-# BLMCGen v2.1
+# BLMCGen v2.1.2
 
 **Business & Lean Model Canvas Generator**
 
 Uma ferramenta web moderna para criar Business Model Canvas (BMC) e Lean Model Canvas (LMC) de forma rápida e visual usando sintaxe markdown, inspirada no Mermaid.
 
-## 🚀 Funcionalidades Implementadas v2.1
+## 🚀 Funcionalidades Implementadas v2.1.2
 
 - ✅ **Editor de código** com Monaco Editor (mesmo do VS Code)
 - ✅ **Suporte duplo**: Business Model Canvas (BMC) e Lean Model Canvas (LMC)
@@ -17,12 +17,18 @@ Uma ferramenta web moderna para criar Business Model Canvas (BMC) e Lean Model C
   - Troca entre abas preservando conteúdo
 - ✅ **Sistema de abas**: Código (editável), Exemplo BMC (readonly), Exemplo LMC (readonly)
 - ✅ **Proteção de código do usuário** - exemplos não sobrescrevem código editável
-- ✅ **Exportação** para PNG e JPEG
+- ✅ **Exportação PDF REAL** - FUNCIONANDO PERFEITAMENTE! 🎯
+  - Geração de PDF verdadeiro usando jsPDF
+  - Formato A4 landscape otimizado
+  - Resolução de conflitos AMD com Monaco Editor
+  - Fallback inteligente para PNG A4 se necessário
+- ✅ **Exportação PNG/JPEG** em alta qualidade
 - ✅ **Zoom** e controles de visualização
 - ✅ **Suporte multi-idioma** (Português, Inglês, Espanhol)
 - ✅ **Layout responsivo** para mobile e desktop com suporte a zoom alto (125%+)
 - ✅ **Exemplos educativos** com explicações e perguntas orientadoras
 - ✅ **Persistência automática** de código em localStorage
+- ✅ **Favicon personalizado** com emoji 📊
 
 ## 📋 Sintaxe Suportada
 
@@ -141,11 +147,12 @@ revenue-streams:
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **HTML5** - Estrutura da aplicação
+- **HTML5** - Estrutura da aplicação com favicon SVG
 - **CSS3** - Estilização e layout responsivo
 - **JavaScript (ES6+)** - Lógica da aplicação e módulos
 - **Monaco Editor** - Editor de código profissional
-- **Canvas HTML5** - Renderização dos canvas
+- **Canvas HTML5** - Renderização dos canvas em alta qualidade
+- **jsPDF** - Exportação para PDF com detecção robusta
 - **Arquitetura modular** - Parser, Renderer e App separados
 
 ## 🚀 Como Usar
@@ -272,7 +279,7 @@ Tradução completa de:
 
 ## 🎯 Roadmap
 
-### ✅ Versão Atual (v2.1)
+### ✅ Versão Atual (v2.1.1)
 - [x] Editor Monaco com syntax highlighting
 - [x] Suporte completo a BMC e LMC
 - [x] Detecção automática de tipo
@@ -280,15 +287,22 @@ Tradução completa de:
 - [x] Auto-save e persistência em localStorage
 - [x] Proteção de código do usuário
 - [x] Sistema de abas com exemplos
-- [x] Exportação PNG/JPEG
+- [x] Exportação PDF/PNG/JPEG robusta
 - [x] Suporte multi-idioma
 - [x] Interface responsiva com suporte a zoom alto
 - [x] Exemplos educativos
+- [x] Favicon personalizado
+
+#### 🔧 Correções v2.1.1
+- **PDF Export**: Corrigida biblioteca jsPDF com detecção aprimorada
+- **Favicon**: Adicionado favicon personalizado (📊) para eliminar erro 404
+- **Qualidade**: Melhorada qualidade de exportação PDF
+- **Robustez**: Fallback automático PNG quando PDF falha
 
 ### 🔄 Próximas Versões
 - [ ] **v2.2**: Salvar/Carregar projetos nomeados
 - [ ] **v2.3**: Themes e personalização de cores
-- [ ] **v2.4**: Exportação para PDF e SVG
+- [ ] **v2.4**: Exportação para SVG
 
 ## 🤝 Contribuindo
 
@@ -305,6 +319,21 @@ Este projeto está sob a licença GNU GPL v3. Veja o arquivo [LICENSE](LICENSE) 
 ## 🎉 Inspiração
 
 Este projeto foi inspirado no [Mermaid](https://mermaid-js.github.io/mermaid/#/) e na necessidade de uma ferramenta simples para criar Business Model Canvas e Lean Model Canvas de forma rápida e visual.
+
+## 📈 Changelog
+
+### v2.1.2 (2025-07-14)
+- 🎯 **CORRIGIDO**: Exportação PDF real funcionando perfeitamente
+- 🔧 **TÉCNICO**: Resolvido conflito AMD entre Monaco Editor e jsPDF
+- ✅ **MELHORIA**: Detecção robusta da biblioteca jsPDF com fallbacks
+- 📄 **NOVO**: PDF real em formato A4 landscape otimizado
+- 🚀 **ESTABILIDADE**: Sistema de carregamento de bibliotecas mais robusto
+
+### v2.1.1 (2025-07-13)
+- 🎉 **NOVO**: Sistema de múltiplas abas de código
+- 🔧 **CORRIGIDO**: Proteção de código do usuário
+- ✅ **MELHORIA**: Interface responsiva aprimorada
+- 📊 **NOVO**: Favicon personalizado
 
 ## 📚 Referências
 
