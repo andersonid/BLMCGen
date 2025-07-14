@@ -1764,8 +1764,24 @@ revenue-streams:
         const fileName = `${cleanName}_${canvasType}.pdf`;
         
         try {
+            // Debug: verificar o que está disponível
+            console.log('window.jspdf:', window.jspdf);
+            console.log('window.jsPDF:', window.jsPDF);
+            
+            // Verificar se jsPDF está disponível e obter a classe
+            let jsPDF;
+            if (window.jspdf && window.jspdf.jsPDF) {
+                jsPDF = window.jspdf.jsPDF;
+                console.log('Using window.jspdf.jsPDF');
+            } else if (window.jsPDF) {
+                jsPDF = window.jsPDF;
+                console.log('Using window.jsPDF');
+            } else {
+                console.error('Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('pdf')));
+                throw new Error('jsPDF library not found');
+            }
+            
             // Criar PDF no formato A4 landscape
-            const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('landscape', 'mm', 'a4');
             
             // Dimensões A4 landscape: 297mm x 210mm
