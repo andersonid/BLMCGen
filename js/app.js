@@ -176,8 +176,8 @@ class BMCApp {
             const tabElement = document.createElement('div');
             tabElement.className = `code-tab ${tab.isActive ? 'active' : ''}`;
             tabElement.innerHTML = `
-                <span class="tab-name" data-tab-id="${tabId}">${tab.name}</span>
-                ${this.codeTabs.size > 1 ? `<button class="tab-close" data-tab-id="${tabId}">×</button>` : ''}
+                <span class="tab-name" data-tab-id="${tabId}" title="Duplo clique para renomear">${tab.name}</span>
+                ${this.codeTabs.size > 1 ? `<button class="tab-close" data-tab-id="${tabId}" title="Fechar aba">×</button>` : ''}
             `;
             codeTabsContainer.appendChild(tabElement);
         });
@@ -989,11 +989,11 @@ revenue-streams:
         });
         
         document.getElementById('loadBtn').addEventListener('click', () => {
-            this.showLoadProjectDialog();
+            this.loadMarkdownFile();
         });
         
         document.getElementById('saveBtn').addEventListener('click', () => {
-            this.showSaveProjectDialog();
+            this.downloadMarkdownFile();
         });
         
         // Tab switching
@@ -1769,40 +1769,78 @@ revenue-streams:
     }
 
     // Project UI functions
-    showSaveProjectDialog() {
-        const projectName = prompt('Digite o nome do projeto:', '');
-        if (projectName && projectName.trim()) {
-            const code = this.editor.getValue();
-            if (this.saveProject(projectName.trim(), code)) {
-                this.updateStatus(`Projeto "${projectName}" salvo com sucesso!`);
-            } else {
-                this.updateStatus('Erro ao salvar projeto');
-            }
-        }
-    }
-
-    showLoadProjectDialog() {
-        const projects = this.getProjectsList();
-        if (projects.length === 0) {
-            alert('Nenhum projeto salvo encontrado.');
+    downloadMarkdownFile() {
+        const code = this.editor.getValue();
+        if (!code.trim()) {
+            this.updateStatus('Nenhum conteúdo para salvar');
             return;
         }
 
-        // Create project list
-        let projectList = 'Projetos salvos:\n\n';
-        projects.forEach((project, index) => {
-            const date = new Date(project.updatedAt).toLocaleDateString('pt-BR');
-            const type = project.canvasType === 'lmc' ? 'LMC' : project.canvasType === 'bmc' ? 'BMC' : '?';
-            projectList += `${index + 1}. ${project.name} (${type}) - ${date}\n`;
+        // Determinar nome do arquivo baseado no tipo de canvas e nome da aba
+        const canvasType = this.detectCanvasType(code);
+        const activeTab = this.codeTabs.get(this.activeCodeTabId);
+        const tabName = activeTab ? activeTab.name : 'canvas';
+        
+        // Limpar nome do arquivo (remover caracteres especiais)
+        const cleanName = tabName.replace(/[^a-zA-Z0-9\s\-_]/g, '').replace(/\s+/g, '_');
+        const fileName = `${cleanName}_${canvasType}.md`;
+
+        // Criar blob e download
+        const blob = new Blob([code], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        URL.revokeObjectURL(url);
+        
+        this.updateStatus(`📄 Arquivo ${fileName} baixado com sucesso!`);
+    }
+
+    loadMarkdownFile() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.md,.txt';
+        input.style.display = 'none';
+        
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                
+                // Extrair nome do arquivo sem extensão para nome da aba
+                const fileName = file.name.replace(/\.[^/.]+$/, "");
+                const cleanName = fileName.replace(/_/g, ' ');
+                
+                // Criar nova aba com o conteúdo carregado
+                this.createCodeTab(cleanName, content, true);
+                
+                // Atualizar editor
+                this.editor.setValue(content);
+                this.render();
+                
+                this.updateStatus(`📂 Arquivo ${file.name} carregado com sucesso!`);
+            };
+            
+            reader.onerror = () => {
+                this.updateStatus('❌ Erro ao carregar arquivo');
+            };
+            
+            reader.readAsText(file);
         });
-
-        const selection = prompt(projectList + '\nDigite o número do projeto para carregar:');
-        const projectIndex = parseInt(selection) - 1;
-
-        if (projectIndex >= 0 && projectIndex < projects.length) {
-            const selectedProject = projects[projectIndex];
-            this.loadProjectByName(selectedProject.name);
-        }
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
     }
 
     loadProjectByName(name) {
