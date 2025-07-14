@@ -1764,21 +1764,27 @@ revenue-streams:
         const fileName = `${cleanName}_${canvasType}.pdf`;
         
         try {
-            // Debug: verificar o que está disponível
-            console.log('window.jspdf:', window.jspdf);
-            console.log('window.jsPDF:', window.jsPDF);
-            
-            // Verificar se jsPDF está disponível e obter a classe
+            // Verificar se jsPDF está disponível de forma mais robusta
             let jsPDF;
-            if (window.jspdf && window.jspdf.jsPDF) {
+            
+            // Tentar diferentes formas de acessar jsPDF
+            if (typeof window.jspdf !== 'undefined' && window.jspdf.jsPDF) {
                 jsPDF = window.jspdf.jsPDF;
-                console.log('Using window.jspdf.jsPDF');
-            } else if (window.jsPDF) {
+                console.log('✓ Found jsPDF at window.jspdf.jsPDF');
+            } else if (typeof window.jsPDF !== 'undefined') {
                 jsPDF = window.jsPDF;
-                console.log('Using window.jsPDF');
+                console.log('✓ Found jsPDF at window.jsPDF');
             } else {
-                console.error('Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('pdf')));
-                throw new Error('jsPDF library not found');
+                // Mostrar informações de debug
+                console.error('❌ jsPDF not found. Available objects:');
+                console.error('window.jspdf:', window.jspdf);
+                console.error('window.jsPDF:', window.jsPDF);
+                console.error('All window props with "pdf":', Object.keys(window).filter(k => k.toLowerCase().includes('pdf')));
+                
+                // Fallback: usar downloadPNG
+                this.updateStatus('⚠️ PDF não disponível, baixando PNG...');
+                this.downloadPNG();
+                return;
             }
             
             // Criar PDF no formato A4 landscape
