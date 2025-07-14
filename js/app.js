@@ -12,6 +12,7 @@ class BMCApp {
         this.currentTab = 'code';
         this.userCode = '';
         this.storageKey = 'blmcgen-user-code';
+        this.projectsKey = 'blmcgen-projects';
         this.saveTimeout = null;
         
         this.init();
@@ -41,6 +42,89 @@ class BMCApp {
         } catch (error) {
             console.warn('Failed to clear user code from localStorage:', error);
         }
+    }
+
+    // Project management functions
+    getProjects() {
+        try {
+            const projects = localStorage.getItem(this.projectsKey);
+            return projects ? JSON.parse(projects) : {};
+        } catch (error) {
+            console.warn('Failed to load projects from localStorage:', error);
+            return {};
+        }
+    }
+
+    saveProject(name, code, metadata = {}) {
+        try {
+            const projects = this.getProjects();
+            const projectData = {
+                name: name,
+                code: code,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                canvasType: this.detectCanvasType(code),
+                ...metadata
+            };
+            
+            // If project exists, preserve creation date
+            if (projects[name]) {
+                projectData.createdAt = projects[name].createdAt;
+            }
+            
+            projects[name] = projectData;
+            localStorage.setItem(this.projectsKey, JSON.stringify(projects));
+            
+            console.log(`Project "${name}" saved successfully`);
+            return true;
+        } catch (error) {
+            console.error('Failed to save project:', error);
+            return false;
+        }
+    }
+
+    loadProject(name) {
+        try {
+            const projects = this.getProjects();
+            return projects[name] || null;
+        } catch (error) {
+            console.warn('Failed to load project:', error);
+            return null;
+        }
+    }
+
+    deleteProject(name) {
+        try {
+            const projects = this.getProjects();
+            if (projects[name]) {
+                delete projects[name];
+                localStorage.setItem(this.projectsKey, JSON.stringify(projects));
+                console.log(`Project "${name}" deleted successfully`);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('Failed to delete project:', error);
+            return false;
+        }
+    }
+
+    getProjectsList() {
+        const projects = this.getProjects();
+        return Object.keys(projects).map(name => ({
+            name: name,
+            ...projects[name]
+        })).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    }
+
+    detectCanvasType(code) {
+        // Simple detection based on content
+        if (code.includes('problem:') || code.includes('solution:') || code.includes('unique-value-proposition:')) {
+            return 'lmc';
+        } else if (code.includes('value-propositions:') || code.includes('customer-relationships:')) {
+            return 'bmc';
+        }
+        return 'unknown';
     }
 
     debounceSave() {
@@ -110,6 +194,7 @@ class BMCApp {
         const elements = {
             'exportBtn': i18n.t('export'),
             'shareBtn': i18n.t('share'),
+            'loadBtn': i18n.t('load'),
             'saveBtn': i18n.t('save'),
             'zoomOutBtn': i18n.t('zoom-out'),
             'zoomInBtn': i18n.t('zoom-in'),
@@ -352,8 +437,12 @@ class BMCApp {
             this.shareCanvas();
         });
         
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            this.showLoadProjectDialog();
+        });
+        
         document.getElementById('saveBtn').addEventListener('click', () => {
-            this.saveProject();
+            this.showSaveProjectDialog();
         });
         
         // Tab switching
@@ -846,7 +935,67 @@ revenue-streams:
         }
     }
 
-    saveProject() {
+    // Project UI functions
+    showSaveProjectDialog() {
+        const projectName = prompt('Digite o nome do projeto:', '');
+        if (projectName && projectName.trim()) {
+            const code = this.editor.getValue();
+            if (this.saveProject(projectName.trim(), code)) {
+                this.updateStatus(`Projeto "${projectName}" salvo com sucesso!`);
+            } else {
+                this.updateStatus('Erro ao salvar projeto');
+            }
+        }
+    }
+
+    showLoadProjectDialog() {
+        const projects = this.getProjectsList();
+        if (projects.length === 0) {
+            alert('Nenhum projeto salvo encontrado.');
+            return;
+        }
+
+        // Create project list
+        let projectList = 'Projetos salvos:\n\n';
+        projects.forEach((project, index) => {
+            const date = new Date(project.updatedAt).toLocaleDateString('pt-BR');
+            const type = project.canvasType === 'lmc' ? 'LMC' : project.canvasType === 'bmc' ? 'BMC' : '?';
+            projectList += `${index + 1}. ${project.name} (${type}) - ${date}\n`;
+        });
+
+        const selection = prompt(projectList + '\nDigite o número do projeto para carregar:');
+        const projectIndex = parseInt(selection) - 1;
+
+        if (projectIndex >= 0 && projectIndex < projects.length) {
+            const selectedProject = projects[projectIndex];
+            this.loadProjectByName(selectedProject.name);
+        }
+    }
+
+    loadProjectByName(name) {
+        const project = this.loadProject(name);
+        if (project) {
+            // Switch to code tab
+            this.switchTab('code');
+            
+            // Load project code
+            this.userCode = project.code;
+            this.editor.setValue(project.code);
+            
+            // Save as current code
+            this.saveUserCode(project.code);
+            
+            // Render
+            this.render();
+            
+            this.updateStatus(`Projeto "${name}" carregado com sucesso!`);
+            console.log(`Loaded project: ${name}`);
+        } else {
+            this.updateStatus('Erro ao carregar projeto');
+        }
+    }
+
+    exportProject() {
         const projectData = {
             code: this.editor.getValue(),
             zoom: this.zoomLevel,
@@ -859,7 +1008,7 @@ revenue-streams:
         link.href = URL.createObjectURL(blob);
         link.click();
         
-        this.updateStatus('Project saved');
+        this.updateStatus('Project exported');
     }
 }
 
