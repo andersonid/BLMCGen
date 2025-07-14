@@ -15,10 +15,492 @@ class BMCApp {
         this.projectsKey = 'blmcgen-projects';
         this.saveTimeout = null;
         
+        // Sistema de múltiplas abas
+        this.codeTabs = new Map(); // Map<tabId, {name, content, isActive}>
+        this.activeCodeTabId = null;
+        this.nextTabId = 1;
+        this.codeTabsKey = 'blmcgen-code-tabs';
+        
+        // Exemplos
+        this.exampleBMC = '';
+        this.exampleLMC = '';
+        
         this.init();
     }
 
-    // LocalStorage functions for code persistence
+    // Funções para gerenciamento de múltiplas abas de código
+    saveCodeTabs() {
+        try {
+            const tabsData = {
+                tabs: Array.from(this.codeTabs.entries()).map(([id, tab]) => ({
+                    id,
+                    name: tab.name,
+                    content: tab.content,
+                    isActive: tab.isActive
+                })),
+                activeTabId: this.activeCodeTabId,
+                nextTabId: this.nextTabId
+            };
+            localStorage.setItem(this.codeTabsKey, JSON.stringify(tabsData));
+        } catch (error) {
+            console.warn('Failed to save code tabs to localStorage:', error);
+        }
+    }
+
+    loadCodeTabs() {
+        try {
+            const saved = localStorage.getItem(this.codeTabsKey);
+            if (saved) {
+                const tabsData = JSON.parse(saved);
+                this.codeTabs.clear();
+                
+                tabsData.tabs.forEach(tab => {
+                    this.codeTabs.set(tab.id, {
+                        name: tab.name,
+                        content: tab.content,
+                        isActive: tab.isActive
+                    });
+                });
+                
+                this.activeCodeTabId = tabsData.activeTabId;
+                this.nextTabId = tabsData.nextTabId;
+                
+                return true;
+            }
+        } catch (error) {
+            console.warn('Failed to load code tabs from localStorage:', error);
+        }
+        return false;
+    }
+
+    createCodeTab(name = `Código ${this.nextTabId}`, content = '', makeActive = true) {
+        const tabId = this.nextTabId++;
+        
+        // Desativar todas as outras abas se esta for ativa
+        if (makeActive) {
+            this.codeTabs.forEach(tab => tab.isActive = false);
+            this.activeCodeTabId = tabId;
+        }
+        
+        this.codeTabs.set(tabId, {
+            name,
+            content,
+            isActive: makeActive
+        });
+        
+        this.updateCodeTabsUI();
+        this.saveCodeTabs();
+        
+        if (makeActive) {
+            this.switchToCodeTab(tabId);
+        }
+        
+        return tabId;
+    }
+
+    deleteCodeTab(tabId) {
+        if (this.codeTabs.size <= 1) {
+            return; // Não permitir deletar a última aba
+        }
+        
+        const wasActive = this.codeTabs.get(tabId)?.isActive;
+        this.codeTabs.delete(tabId);
+        
+        // Se a aba deletada era ativa, ativar a primeira disponível
+        if (wasActive) {
+            const firstTabId = this.codeTabs.keys().next().value;
+            this.switchToCodeTab(firstTabId);
+        }
+        
+        this.updateCodeTabsUI();
+        this.saveCodeTabs();
+    }
+
+    renameCodeTab(tabId, newName) {
+        const tab = this.codeTabs.get(tabId);
+        if (tab) {
+            tab.name = newName.trim() || `Código ${tabId}`;
+            this.updateCodeTabsUI();
+            this.saveCodeTabs();
+        }
+    }
+
+    switchToCodeTab(tabId) {
+        // Salvar conteúdo da aba atual antes de trocar
+        if (this.activeCodeTabId && this.editor) {
+            const currentTab = this.codeTabs.get(this.activeCodeTabId);
+            if (currentTab) {
+                currentTab.content = this.editor.getValue();
+            }
+        }
+        
+        // Desativar todas as abas
+        this.codeTabs.forEach(tab => tab.isActive = false);
+        
+        // Ativar a nova aba
+        const newTab = this.codeTabs.get(tabId);
+        if (newTab) {
+            newTab.isActive = true;
+            this.activeCodeTabId = tabId;
+            
+            // Carregar conteúdo no editor
+            if (this.editor) {
+                this.editor.setValue(newTab.content);
+            }
+            
+            this.updateCodeTabsUI();
+            this.saveCodeTabs();
+            this.debounceRender();
+        }
+    }
+
+    updateCodeTabsUI() {
+        const codeTabsContainer = document.querySelector('.code-tabs');
+        if (!codeTabsContainer) {
+            console.error('Code tabs container not found!');
+            return;
+        }
+        
+        // Garantir que o container pai tenha a classe show se estivermos na aba code
+        if (this.currentTab === 'code') {
+            const parentContainer = document.getElementById('codeTabsContainer');
+            if (parentContainer) {
+                parentContainer.classList.add('show');
+            }
+        }
+        
+        codeTabsContainer.innerHTML = '';
+        
+        // Criar abas de código
+        this.codeTabs.forEach((tab, tabId) => {
+            const tabElement = document.createElement('div');
+            tabElement.className = `code-tab ${tab.isActive ? 'active' : ''}`;
+            tabElement.innerHTML = `
+                <span class="tab-name" data-tab-id="${tabId}">${tab.name}</span>
+                ${this.codeTabs.size > 1 ? `<button class="tab-close" data-tab-id="${tabId}">×</button>` : ''}
+            `;
+            codeTabsContainer.appendChild(tabElement);
+        });
+        
+        // Botão para adicionar nova aba
+        const addTabButton = document.createElement('button');
+        addTabButton.className = 'add-tab-btn';
+        addTabButton.innerHTML = '+';
+        addTabButton.title = 'Nova aba de código';
+        codeTabsContainer.appendChild(addTabButton);
+        
+        // Event listeners para as abas
+        this.setupCodeTabsEventListeners();
+    }
+
+    setupCodeTabsEventListeners() {
+        const codeTabsContainer = document.querySelector('.code-tabs');
+        if (!codeTabsContainer) return;
+        
+        // Remover listeners antigos se existirem
+        if (this.codeTabsClickHandler) {
+            codeTabsContainer.removeEventListener('click', this.codeTabsClickHandler);
+        }
+        if (this.codeTabsDblClickHandler) {
+            codeTabsContainer.removeEventListener('dblclick', this.codeTabsDblClickHandler);
+        }
+        
+        // Criar novos handlers
+        this.codeTabsClickHandler = (e) => {
+            console.log('Code tab clicked:', e.target.className);
+            if (e.target.classList.contains('tab-name')) {
+                const tabId = parseInt(e.target.dataset.tabId);
+                console.log('Switching to tab:', tabId);
+                this.switchToCodeTab(tabId);
+            } else if (e.target.classList.contains('tab-close')) {
+                const tabId = parseInt(e.target.dataset.tabId);
+                console.log('Closing tab:', tabId);
+                this.deleteCodeTab(tabId);
+            } else if (e.target.classList.contains('add-tab-btn')) {
+                console.log('Adding new tab');
+                this.createCodeTab();
+            }
+        };
+        
+        this.codeTabsDblClickHandler = (e) => {
+            if (e.target.classList.contains('tab-name')) {
+                const tabId = parseInt(e.target.dataset.tabId);
+                this.startRenameTab(tabId, e.target);
+            }
+        };
+        
+        // Adicionar novos listeners
+        codeTabsContainer.addEventListener('click', this.codeTabsClickHandler);
+        codeTabsContainer.addEventListener('dblclick', this.codeTabsDblClickHandler);
+    }
+
+    startRenameTab(tabId, element) {
+        const currentName = element.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentName;
+        input.className = 'tab-rename-input';
+        
+        element.style.display = 'none';
+        element.parentNode.insertBefore(input, element);
+        
+        input.focus();
+        input.select();
+        
+        const finishRename = () => {
+            const newName = input.value.trim() || currentName;
+            this.renameCodeTab(tabId, newName);
+            input.remove();
+            element.style.display = '';
+        };
+        
+        input.addEventListener('blur', finishRename);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                finishRename();
+            } else if (e.key === 'Escape') {
+                input.remove();
+                element.style.display = '';
+            }
+        });
+    }
+
+    initializeExamples() {
+        // Carregar exemplo BMC
+        this.exampleBMC = `# BUSINESS MODEL CANVAS (BMC) - EXEMPLO EXPLICATIVO
+# 
+# O Business Model Canvas é uma ferramenta estratégica que descreve de forma visual
+# como uma empresa cria, entrega e captura valor. Ele é dividido em 9 blocos fundamentais.
+
+bmc
+title: Netflix - Plataforma de Streaming
+description: Serviço de streaming de vídeo por assinatura
+
+# 🤝 PARCERIAS-CHAVE
+# Quem são nossos parceiros estratégicos?
+# Que atividades eles realizam? Que recursos eles fornecem?
+key-partnerships:
+  - Estúdios de Hollywood (Disney, Warner Bros)
+  - Produtoras independentes de conteúdo
+  - Provedores de internet (ISPs)
+  - Dispositivos inteligentes (Samsung, LG, Roku)
+  - Plataformas de pagamento (PayPal, cartões)
+  - Serviços de cloud computing (AWS)
+
+# ⚡ ATIVIDADES-CHAVE  
+# Que atividades mais importantes nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes? Fontes de receita?
+key-activities:
+  - Licenciamento de conteúdo
+  - Produção de conteúdo original
+  - Desenvolvimento de tecnologia de streaming
+  - Análise de dados e algoritmos de recomendação
+  - Marketing e aquisição de usuários
+  - Atendimento ao cliente
+
+# 🔑 RECURSOS-CHAVE
+# Que recursos mais importantes nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes?
+key-resources:
+  - Plataforma tecnológica robusta
+  - Biblioteca de conteúdo licenciado
+  - Conteúdo original exclusivo
+  - Algoritmos de recomendação
+  - Marca global reconhecida
+  - Equipe de desenvolvimento e criação
+
+# 💰 PROPOSTA DE VALOR
+# Que valor entregamos aos clientes?
+# Qual problema estamos resolvendo?
+# Que necessidades satisfazemos?
+value-propositions:
+  - Entretenimento sob demanda 24/7
+  - Conteúdo original exclusivo de alta qualidade
+  - Experiência personalizada com recomendações
+  - Múltiplas telas e dispositivos
+  - Sem comerciais durante a reprodução
+  - Preço acessível comparado à TV a cabo
+
+# 🤝 RELACIONAMENTO COM CLIENTES
+# Que tipo de relacionamento estabelecemos?
+# Como mantemos e desenvolvemos?
+customer-relationships:
+  - Autoatendimento via plataforma
+  - Suporte técnico 24/7
+  - Comunidade online de fãs
+  - Programas de fidelidade
+  - Comunicação personalizada
+  - Feedback e avaliações de conteúdo
+
+# 📢 CANAIS
+# Através de quais canais alcançamos nossos clientes?
+# Como nossos canais se integram?
+channels:
+  - Plataforma web (Netflix.com)
+  - Aplicativos móveis (iOS, Android)
+  - Smart TVs e dispositivos streaming
+  - Parcerias com operadoras de TV
+  - Marketing digital e redes sociais
+  - Recomendações boca a boca
+
+# 👥 SEGMENTOS DE CLIENTES
+# Para quem criamos valor?
+# Quem são nossos clientes mais importantes?
+customer-segments:
+  - Famílias com crianças
+  - Jovens adultos (18-35 anos)
+  - Entusiastas de séries e filmes
+  - Consumidores de conteúdo internacional
+  - Pessoas que cortaram TV a cabo
+  - Usuários de múltiplos dispositivos
+
+# 💸 ESTRUTURA DE CUSTOS
+# Quais são os custos mais importantes?
+# Quais recursos e atividades são mais caros?
+cost-structure:
+  - Licenciamento de conteúdo (maior custo)
+  - Produção de conteúdo original
+  - Infraestrutura tecnológica e cloud
+  - Marketing e aquisição de usuários
+  - Desenvolvimento de software
+  - Custos operacionais e pessoal
+
+# 💵 FONTES DE RECEITA
+# Por que valor nossos clientes pagam?
+# Como e quanto pagam atualmente?
+revenue-streams:
+  - Assinaturas mensais recorrentes
+  - Planos diferenciados (Básico, Padrão, Premium)
+  - Expansão geográfica internacional
+  - Parcerias e licenciamento de conteúdo
+  - Merchandising de conteúdo original`;
+
+        // Carregar exemplo LMC
+        this.exampleLMC = `# LEAN MODEL CANVAS (LMC) - EXEMPLO EXPLICATIVO
+#
+# O Lean Model Canvas é uma adaptação do Business Model Canvas focada em startups
+# e validação rápida de hipóteses de negócio. É mais enxuto e orientado a problemas.
+
+lmc
+title: TamborEco
+description: Ecossistema educacional que une música, tecnologia, cultura maker e inclusão social por meio de um curso prático e um kit DIY de bateria eletrônica.
+
+# 🎯 PROBLEMA
+# Quais são os 3 principais problemas que você resolve?
+# Lista os problemas existentes que você identificou
+problem:
+  - Jovens e adultos iniciantes em música
+  - Escolas públicas, técnicas e IFs
+  - Educadores e arte-educadores
+  - ONGs e projetos sociais
+  - Espaços culturais (SESCs, CEUs, Casas de Cultura)
+  - Secretarias de Educação, Cultura e Desenvolvimento Social
+  - Empresas com programas de responsabilidade social
+  - Público maker e entusiastas da cultura digital
+
+# 💡 SOLUÇÃO
+# Como você resolve cada problema?
+# Principais características do seu produto/serviço
+solution:
+  - Curso completo e acessível: construa e toque sua própria bateria eletrônica
+  - Integração de música, eletrônica e software livre
+  - Kit DIY de baixo custo com materiais simples e educativos
+  - Oficinas práticas com impacto social e cultural
+  - Plataforma de formação de multiplicadores comunitários
+
+# 🔑 PROPOSTA DE VALOR ÚNICA
+# Por que você é diferente e vale a pena comprar?
+# Promessa única que você faz aos clientes
+unique-value-proposition:
+  - Curso completo e acessível: construa e toque sua própria bateria eletrônica
+  - Integração de música, eletrônica e software livre
+  - Kit DIY de baixo custo com materiais simples e educativos
+  - Oficinas práticas com impacto social e cultural
+  - Plataforma de formação de multiplicadores comunitários
+
+# 🎯 VANTAGEM COMPETITIVA
+# Algo que não pode ser facilmente copiado ou comprado
+# Seu diferencial único e defensável
+unfair-advantage:
+  - Produção e logística dos kits
+  - Plataformas de ensino (presencial e híbrido)
+  - Equipe de criação, suporte e coordenação
+  - Material audiovisual e gráfico
+  - Bolsas para oficinas gratuitas e ações sociais
+  - Rede de oficinas e multiplicadores
+
+# 👥 SEGMENTOS DE CLIENTES
+# Para quem você está construindo?
+# Seus clientes e usuários mais importantes
+customer-segments:
+  - Jovens e adultos iniciantes em música
+  - Escolas públicas, técnicas e IFs
+  - Educadores e arte-educadores
+  - ONGs e projetos sociais
+  - Espaços culturais (SESCs, CEUs, Casas de Cultura)
+  - Secretarias de Educação, Cultura e Desenvolvimento Social
+  - Empresas com programas de responsabilidade social
+  - Público maker e entusiastas da cultura digital
+
+# 📊 MÉTRICAS-CHAVE
+# Principais números que você acompanha
+# Como você mede o sucesso?
+key-metrics:
+  - Cursos vendidos e acessados
+  - Oficinas e programas presenciais
+  - Licenciamentos da metodologia para instituições
+  - Captação de recursos via leis de incentivo e patrocínio
+
+# 📢 CANAIS
+# Como você alcança seus clientes?
+# Caminhos para chegar até eles
+channels:
+  - Plataforma online (cursos e conteúdo)
+  - Workshops presenciais em escolas, SESCs e ONGs
+  - Redes sociais (Instagram, YouTube, TikTok)
+  - Venda direta via e-commerce
+  - Parcerias com secretarias e projetos sociais
+
+# 💰 ESTRUTURA DE CUSTOS
+# Principais custos para operar o negócio
+# Custos mais importantes e operacionais
+cost-structure:
+  - Produção e logística dos kits
+  - Plataformas de ensino (presencial e híbrido)
+  - Equipe de criação, suporte e coordenação
+  - Material audiovisual e gráfico
+  - Bolsas para oficinas gratuitas e ações sociais
+  - Rede de oficinas e multiplicadores
+
+# 💵 FONTES DE RECEITA
+# Como você ganha dinheiro?
+# Principais formas de monetização
+revenue-streams:
+  - Venda do TamborEco Kit (varejo e institucional)
+  - Venda de cursos online (individuais e combo)
+  - Oficinas e programas presenciais
+  - Licenciamentos da metodologia para instituições
+  - Captação de recursos via leis de incentivo e patrocínio`;
+    }
+
+    initializeCodeTabs() {
+        // Tentar carregar abas salvas
+        if (!this.loadCodeTabs() || this.codeTabs.size === 0) {
+            // Se não há abas salvas, criar a primeira aba
+            this.createCodeTab('Código 1', '', true);
+        }
+        
+        // Carregar conteúdo da aba ativa no editor
+        const activeTab = Array.from(this.codeTabs.values()).find(tab => tab.isActive);
+        if (activeTab && this.editor) {
+            this.editor.setValue(activeTab.content);
+        }
+        
+        // Atualizar UI das abas
+        this.updateCodeTabsUI();
+    }
+
+    // LocalStorage functions for code persistence (mantidas para compatibilidade)
     saveUserCode(code) {
         try {
             localStorage.setItem(this.storageKey, code);
@@ -135,8 +617,17 @@ class BMCApp {
         
         // Set new timeout to save after 1 second of inactivity
         this.saveTimeout = setTimeout(() => {
-            if (this.currentTab === 'code') {
+            if (this.currentTab === 'code' && this.editor && this.activeCodeTabId) {
                 const currentCode = this.editor.getValue();
+                
+                // Salvar na aba ativa do novo sistema
+                const activeTab = this.codeTabs.get(this.activeCodeTabId);
+                if (activeTab) {
+                    activeTab.content = currentCode;
+                    this.saveCodeTabs();
+                }
+                
+                // Manter compatibilidade com sistema antigo
                 this.userCode = currentCode;
                 this.saveUserCode(currentCode);
                 console.log('Auto-saved user code to localStorage');
@@ -145,18 +636,24 @@ class BMCApp {
     }
 
     loadInitialContent() {
-        // Try to load saved user code first
-        const savedCode = this.loadUserCode();
-        
-        if (savedCode && savedCode.trim() !== '') {
-            // Load saved code
-            this.userCode = savedCode;
-            this.editor.setValue(savedCode);
-            console.log('Loaded saved user code from localStorage');
-        } else {
-            // Load default example if no saved code
-            this.loadExample();
-            console.log('Loaded default example content');
+        // Se não há conteúdo na aba ativa, carregar exemplo padrão
+        const activeTab = Array.from(this.codeTabs.values()).find(tab => tab.isActive);
+        if (!activeTab || !activeTab.content.trim()) {
+            // Tentar carregar código salvo do sistema antigo para migração
+            const savedCode = this.loadUserCode();
+            if (savedCode && savedCode.trim() !== '') {
+                if (activeTab) {
+                    activeTab.content = savedCode;
+                    this.editor.setValue(savedCode);
+                    this.saveCodeTabs();
+                }
+                this.userCode = savedCode;
+                console.log('Migrated saved user code to new tab system');
+            } else {
+                // Carregar exemplo padrão
+                this.loadExample();
+                console.log('Loaded default example content');
+            }
         }
         
         // Render the loaded content
@@ -258,6 +755,21 @@ class BMCApp {
             
             // Initialize Monaco Editor
             await this.initEditor();
+            
+            // Initialize examples
+            this.initializeExamples();
+            
+            // Initialize Code Tabs System
+            this.initializeCodeTabs();
+            
+            // Garantir que as abas sejam mostradas se estivermos na aba Code
+            if (this.currentTab === 'code') {
+                const codeTabsContainer = document.getElementById('codeTabsContainer');
+                if (codeTabsContainer) {
+                    codeTabsContainer.classList.add('show');
+                }
+                this.updateCodeTabsUI();
+            }
             
             // Initialize Splitter
             this.initSplitter();
@@ -503,10 +1015,15 @@ class BMCApp {
 
     switchTab(tabName) {
         // Store current code content if we're leaving the code tab
-        if (this.currentTab === 'code') {
-            this.userCode = this.editor.getValue();
-            // Save to localStorage
-            this.saveUserCode(this.userCode);
+        if (this.currentTab === 'code' && this.activeCodeTabId) {
+            const currentCode = this.editor.getValue();
+            const activeTab = this.codeTabs.get(this.activeCodeTabId);
+            if (activeTab) {
+                activeTab.content = currentCode;
+                this.saveCodeTabs();
+            }
+            this.userCode = currentCode;
+            this.saveUserCode(currentCode);
         }
         
         // Remove active class from all tabs
@@ -515,29 +1032,48 @@ class BMCApp {
         });
         
         // Add active class to clicked tab
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        const clickedTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (clickedTab) {
+            clickedTab.classList.add('active');
+        }
         
         // Update current tab
         this.currentTab = tabName;
         
-        // Handle tab content switching
-        switch(tabName) {
-            case 'code':
-                // Restore user code and make editor writable
-                this.editor.setValue(this.userCode || '');
-                this.editor.updateOptions({ readOnly: false });
-                break;
-            case 'bmc-example':
-                // Load BMC example and make editor readonly
-                this.loadBMCExample();
-                this.editor.updateOptions({ readOnly: true });
-                break;
-            case 'lmc-example':
-                // Load LMC example and make editor readonly
-                this.loadLMCExample();
-                this.editor.updateOptions({ readOnly: true });
-                break;
+        // Handle code tabs container visibility
+        const codeTabsContainer = document.getElementById('codeTabsContainer');
+        if (tabName === 'code') {
+            // Show code tabs and make editor editable
+            if (codeTabsContainer) {
+                codeTabsContainer.classList.add('show');
+            }
+            this.editor.updateOptions({ readOnly: false });
+            
+            // Load active code tab content
+            const activeTab = Array.from(this.codeTabs.values()).find(tab => tab.isActive);
+            if (activeTab) {
+                this.editor.setValue(activeTab.content);
+            }
+            
+            // Force update tabs UI
+            this.updateCodeTabsUI();
+        } else {
+            // Hide code tabs and make editor read-only
+            if (codeTabsContainer) {
+                codeTabsContainer.classList.remove('show');
+            }
+            this.editor.updateOptions({ readOnly: true });
+            
+            // Load example content
+            if (tabName === 'bmc-example') {
+                this.editor.setValue(this.exampleBMC);
+            } else if (tabName === 'lmc-example') {
+                this.editor.setValue(this.exampleLMC);
+            }
         }
+        
+        // Re-render canvas
+        this.renderCanvas();
     }
 
     loadExample() {
@@ -609,6 +1145,14 @@ cost-structure:
         
         this.userCode = exampleCode;
         this.editor.setValue(exampleCode);
+        
+        // Atualizar aba ativa se o sistema de abas estiver inicializado
+        if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
+            const activeTab = this.codeTabs.get(this.activeCodeTabId);
+            activeTab.content = exampleCode;
+            this.saveCodeTabs();
+        }
+        
         this.render();
     }
 
@@ -727,6 +1271,132 @@ revenue-streams:
   - Expansão internacional com preços localizados
   - Possíveis receitas futuras: jogos, merchandise`;
         
+        this.editor.setValue(bmcExampleCode);
+        
+        // Atualizar aba ativa se o sistema de abas estiver inicializado
+        if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
+            const activeTab = this.codeTabs.get(this.activeCodeTabId);
+            activeTab.content = bmcExampleCode;
+            this.saveCodeTabs();
+        }
+        
+        this.render();
+    }
+
+    loadBMCExampleReadOnly() {
+        const bmcExampleCode = `# BUSINESS MODEL CANVAS (BMC) - EXEMPLO EXPLICATIVO
+# 
+# O Business Model Canvas é uma ferramenta estratégica que descreve de forma visual
+# como uma empresa cria, entrega e captura valor. Ele é dividido em 9 blocos fundamentais.
+
+bmc
+title: Netflix - Plataforma de Streaming
+description: Serviço de streaming de vídeo por assinatura
+
+# 🤝 PARCERIAS-CHAVE
+# Quem são nossos parceiros estratégicos?
+# Que atividades eles realizam? Que recursos eles fornecem?
+key-partnerships:
+  - Estúdios de Hollywood (Disney, Warner Bros)
+  - Produtoras independentes de conteúdo
+  - Provedores de internet (ISPs)
+  - Dispositivos inteligentes (Samsung, LG, Roku)
+  - Plataformas de pagamento (PayPal, cartões)
+  - Serviços de cloud computing (AWS)
+
+# ⚡ ATIVIDADES-CHAVE
+# Que atividades mais importantes nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes? Fontes de receita?
+key-activities:
+  - Licenciamento de conteúdo
+  - Produção de conteúdo original
+  - Desenvolvimento de tecnologia de streaming
+  - Análise de dados e algoritmos de recomendação
+  - Marketing e aquisição de usuários
+  - Atendimento ao cliente
+
+# 🔑 RECURSOS-CHAVE
+# Que recursos principais nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes? Fontes de receita?
+key-resources:
+  - Biblioteca massiva de conteúdo
+  - Tecnologia de streaming e CDN
+  - Dados dos usuários e algoritmos
+  - Marca global reconhecida
+  - Equipe técnica especializada
+  - Capital para investimento em conteúdo
+
+# 💰 PROPOSTA DE VALOR
+# Que valor entregamos ao cliente?
+# Qual problema estamos resolvendo? Que necessidades satisfazemos?
+value-propositions:
+  - Entretenimento sob demanda
+  - Conteúdo original exclusivo e premiado
+  - Algoritmo de recomendação personalizada
+  - Acesso multiplataforma (TV, mobile, web)
+  - Interface intuitiva e fácil de usar
+  - Download para assistir offline
+  - Sem anúncios (plano premium)
+
+# 🤝 RELACIONAMENTO COM CLIENTES
+# Que tipo de relacionamento cada segmento espera?
+# Qual estabelecemos? Como se integram ao nosso modelo?
+customer-relationships:
+  - Autoatendimento via plataforma
+  - Recomendações personalizadas via IA
+  - Suporte ao cliente 24/7
+  - Comunidades online e redes sociais
+  - Programa de fidelidade implícito
+  - Feedback contínuo via avaliações
+
+# 📢 CANAIS
+# Através de quais canais nossos segmentos querem ser alcançados?
+# Como os alcançamos agora? Como nossos canais se integram?
+channels:
+  - Website oficial (netflix.com)
+  - Aplicativos móveis (iOS/Android)
+  - Smart TVs e dispositivos de streaming
+  - Marketing digital e redes sociais
+  - Parcerias com operadoras de internet
+  - Boca a boca e indicações
+
+# 👥 SEGMENTOS DE CLIENTES
+# Quem são seus primeiros clientes? (early adopters)
+# Como você define seu cliente ideal?
+# Para qual nicho específico você está construindo?
+customer-segments:
+  - Profissionais urbanos (25-45 anos)
+  - Viajantes e turistas
+  - Pessoas sem carro próprio
+  - Usuários que evitam dirigir (álcool, cansaço)
+  - Empresas que precisam de transporte para funcionários
+
+# 💸 ESTRUTURA DE CUSTOS
+# Quais são seus maiores custos?
+# O que é mais caro no seu modelo de negócio?
+cost-structure:
+  - Incentivos e bonificações para motoristas
+  - Desenvolvimento e manutenção da plataforma
+  - Marketing e aquisição de usuários
+  - Operações locais e suporte
+  - Seguros e questões legais/regulatórias
+  - Processamento de pagamentos
+
+# 💵 FONTES DE RECEITA
+# Como você ganha dinheiro?
+# Por qual valor os clientes realmente pagam?
+# Por qual pagam atualmente? Como preferem pagar?
+# Quanto cada fonte de receita contribui para o total?
+revenue-streams:
+  - Comissão de 20-25% sobre cada viagem
+  - Taxa de cancelamento para passageiros
+  - Taxa de conveniência em horários de pico
+  - Surge pricing (preços dinâmicos) em alta demanda
+  - Uber Premium/Black (viagens de luxo)
+  - Parcerias corporativas (Uber for Business)
+  - Receitas futuras: delivery, freight, etc.`;
+        
+        // Apenas carregar no editor, sem afetar as abas do usuário
         this.editor.setValue(bmcExampleCode);
         this.render();
     }
@@ -853,6 +1523,126 @@ revenue-streams:
   - Parcerias corporativas (Uber for Business)
   - Receitas futuras: delivery, freight, etc.`;
         
+        this.editor.setValue(lmcExampleCode);
+        
+        // Atualizar aba ativa se o sistema de abas estiver inicializado
+        if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
+            const activeTab = this.codeTabs.get(this.activeCodeTabId);
+            activeTab.content = lmcExampleCode;
+            this.saveCodeTabs();
+        }
+        
+        this.render();
+    }
+
+    loadLMCExampleReadOnly() {
+        const lmcExampleCode = `# LEAN MODEL CANVAS (LMC) - EXEMPLO EXPLICATIVO
+#
+# O Lean Model Canvas é uma adaptação do Business Model Canvas focada em startups
+# e empresas em estágio inicial. É mais ágil e voltado para validação de hipóteses.
+
+lmc
+title: Uber - Plataforma de Transporte
+description: Aplicativo que conecta passageiros e motoristas para viagens urbanas
+
+# ❗ PROBLEMAS
+# Quais são os 3 principais problemas que você resolve?
+# Liste os problemas existentes que você pretende resolver.
+problem:
+  - Dificuldade para encontrar táxi em horários de pico
+  - Falta de transparência no preço da corrida
+  - Experiência inconsistente com táxis tradicionais
+  - Tempo de espera longo para transporte
+  - Falta de rastreamento da viagem em tempo real
+
+# ✅ SOLUÇÕES
+# Como você resolve cada problema?
+# Descreva as principais funcionalidades do seu produto.
+solution:
+  - App que conecta motoristas e passageiros instantaneamente
+  - Preço calculado automaticamente antes da viagem
+  - Sistema de avaliação mútua (motorista/passageiro)
+  - Localização GPS em tempo real
+  - Pagamento digital integrado no app
+
+# 📊 MÉTRICAS-CHAVE
+# Quais números mostram que seu negócio está funcionando?
+# Como você mede o sucesso?
+key-metrics:
+  - Número de viagens completadas por dia
+  - Tempo médio de espera do passageiro
+  - Taxa de retenção de motoristas
+  - Avaliação média dos usuários (4.5+ estrelas)
+  - Receita por viagem (take rate)
+  - Crescimento mensal de usuários ativos
+
+# 🎯 PROPOSTA DE VALOR ÚNICA
+# Por que você é diferente e vale a pena comprar?
+# O que torna você especial?
+unique-value-proposition:
+  - "Transporte confiável ao toque de um botão"
+  - Conveniência: solicitar carro pelo app
+  - Transparência: preço conhecido antecipadamente
+  - Segurança: rastreamento e identificação do motorista
+  - Qualidade: sistema de avaliações garante bom serviço
+
+# 🚀 VANTAGEM INJUSTA
+# O que você tem que não pode ser facilmente copiado?
+# Qual sua proteção contra a concorrência?
+unfair-advantage:
+  - Efeito de rede: mais motoristas atraem mais passageiros
+  - Algoritmos de otimização de rotas e preços
+  - Marca global reconhecida
+  - Capital massivo para expansão agressiva
+  - Dados históricos de milhões de viagens
+  - Parcerias estratégicas estabelecidas
+
+# 📢 CANAIS
+# Como você alcança seus clientes?
+# Quais canais funcionam melhor?
+channels:
+  - App stores (iOS e Android)
+  - Marketing digital (Google, Facebook)
+  - Boca a boca e indicações
+  - Parcerias com empresas
+  - Presença em aeroportos e eventos
+  - Campanhas de marketing local
+
+# 👥 SEGMENTOS DE CLIENTES
+# Quem são seus clientes?
+# Para quem você cria valor?
+customer-segments:
+  - Profissionais urbanos (25-45 anos)
+  - Viajantes e turistas
+  - Pessoas sem carro próprio
+  - Usuários que evitam dirigir (álcool, cansaço)
+  - Empresas que precisam de transporte para funcionários
+
+# 💸 ESTRUTURA DE CUSTOS
+# Quais são seus maiores custos?
+# O que é mais caro no seu modelo de negócio?
+cost-structure:
+  - Incentivos e bonificações para motoristas
+  - Desenvolvimento e manutenção da plataforma
+  - Marketing e aquisição de usuários
+  - Operações locais e suporte
+  - Seguros e questões legais/regulatórias
+  - Processamento de pagamentos
+
+# 💵 FONTES DE RECEITA
+# Como você ganha dinheiro?
+# Por qual valor os clientes pagam?
+# Como eles preferem pagar? Quanto cada fonte contribui?
+revenue-streams:
+  - Comissão de 20-25% sobre cada viagem
+  - Taxa de cancelamento para passageiros
+  - Taxa de conveniência em horários de pico
+  - Surge pricing (preços dinâmicos) em alta demanda
+  - Uber Premium/Black (viagens de luxo)
+  - Parcerias corporativas (Uber for Business)
+  - Receitas futuras: delivery, freight, etc.`;
+        
+        // Apenas carregar no editor, sem afetar as abas do usuário
         this.editor.setValue(lmcExampleCode);
         this.render();
     }
