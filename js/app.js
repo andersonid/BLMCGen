@@ -25,6 +25,12 @@ class BMCApp {
         this.exampleBMC = '';
         this.exampleLMC = '';
         
+        // Modal de aba
+        this.currentTabId = null;
+        this.modalMode = null; // 'rename' ou 'create'
+        this.modalEventsSetup = false;
+        this.clickTimeout = null;
+        
         this.init();
     }
 
@@ -210,22 +216,41 @@ class BMCApp {
             console.log('Code tab clicked:', e.target.className);
             if (e.target.classList.contains('tab-name')) {
                 const tabId = parseInt(e.target.dataset.tabId);
-                console.log('Switching to tab:', tabId);
-                this.switchToCodeTab(tabId);
+                
+                // Cancelar click anterior se existir
+                if (this.clickTimeout) {
+                    clearTimeout(this.clickTimeout);
+                }
+                
+                // Delay para permitir que dblclick cancele o click
+                this.clickTimeout = setTimeout(() => {
+                    console.log('Switching to tab:', tabId);
+                    this.switchToCodeTab(tabId);
+                    this.clickTimeout = null;
+                }, 250);
+                
             } else if (e.target.classList.contains('tab-close')) {
                 const tabId = parseInt(e.target.dataset.tabId);
                 console.log('Closing tab:', tabId);
                 this.deleteCodeTab(tabId);
             } else if (e.target.classList.contains('add-tab-btn')) {
-                console.log('Adding new tab');
-                this.createCodeTab();
+                console.log('Adding new tab - opening modal');
+                this.openNewTabModal();
             }
         };
         
         this.codeTabsDblClickHandler = (e) => {
             if (e.target.classList.contains('tab-name')) {
                 const tabId = parseInt(e.target.dataset.tabId);
-                this.startRenameTab(tabId, e.target);
+                
+                // Cancelar click pendente
+                if (this.clickTimeout) {
+                    clearTimeout(this.clickTimeout);
+                    this.clickTimeout = null;
+                }
+                
+                console.log('Double click detected, opening rename modal for tab:', tabId);
+                this.openTabModal('rename', tabId);
             }
         };
         
@@ -234,36 +259,146 @@ class BMCApp {
         codeTabsContainer.addEventListener('dblclick', this.codeTabsDblClickHandler);
     }
 
-    startRenameTab(tabId, element) {
-        const currentName = element.textContent;
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentName;
-        input.className = 'tab-rename-input';
+    openTabModal(mode, tabId = null) {
+        console.log('Opening tab modal in mode:', mode, 'for tab:', tabId);
         
-        element.style.display = 'none';
-        element.parentNode.insertBefore(input, element);
+        this.modalMode = mode;
+        this.currentTabId = tabId;
         
-        input.focus();
-        input.select();
+        const modal = document.getElementById('tabModal');
+        const input = document.getElementById('tabNameInput');
+        const title = document.getElementById('tabModalTitle');
+        const confirmBtn = document.getElementById('confirmTab');
         
-        const finishRename = () => {
-            const newName = input.value.trim() || currentName;
-            this.renameCodeTab(tabId, newName);
-            input.remove();
-            element.style.display = '';
-        };
+        if (!modal || !input || !title || !confirmBtn) {
+            console.error('Modal elements not found!');
+            return;
+        }
         
-        input.addEventListener('blur', finishRename);
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                finishRename();
-            } else if (e.key === 'Escape') {
-                input.remove();
-                element.style.display = '';
+        if (mode === 'rename') {
+            const tab = this.codeTabs.get(tabId);
+            if (!tab) {
+                console.error('Tab not found:', tabId);
+                return;
+            }
+            
+            title.textContent = 'Renomear Aba';
+            confirmBtn.textContent = 'Renomear';
+            input.value = tab.name;
+            input.placeholder = 'Digite o nome da aba';
+            
+        } else if (mode === 'create') {
+            title.textContent = 'Nova Aba';
+            confirmBtn.textContent = 'Criar';
+            input.value = '';
+            input.placeholder = 'Digite o nome da nova aba';
+        }
+        
+        modal.classList.add('show');
+        
+        // Focar no input e selecionar o texto
+        setTimeout(() => {
+            input.focus();
+            if (mode === 'rename') {
+                input.select();
+            }
+        }, 100);
+        
+        // Configurar eventos do modal se ainda não foram configurados
+        if (!this.modalEventsSetup) {
+            console.log('Setting up modal events');
+            this.setupModalEvents();
+        }
+    }
+    
+    openNewTabModal() {
+        this.openTabModal('create');
+    }
+    
+    closeTabModal() {
+        console.log('Closing tab modal');
+        const modal = document.getElementById('tabModal');
+        modal.classList.remove('show');
+        this.currentTabId = null;
+        this.modalMode = null;
+    }
+    
+    setupModalEvents() {
+        console.log('Setting up modal events...');
+        const modal = document.getElementById('tabModal');
+        const closeBtn = document.getElementById('closeTabModal');
+        const cancelBtn = document.getElementById('cancelTab');
+        const confirmBtn = document.getElementById('confirmTab');
+        const input = document.getElementById('tabNameInput');
+        
+        if (!modal || !closeBtn || !cancelBtn || !confirmBtn || !input) {
+            console.error('Modal elements not found during setup!');
+            return;
+        }
+        
+        // Fechar modal ao clicar no X ou Cancelar
+        closeBtn.addEventListener('click', () => {
+            console.log('Close button clicked');
+            this.closeTabModal();
+        });
+        cancelBtn.addEventListener('click', () => {
+            console.log('Cancel button clicked');
+            this.closeTabModal();
+        });
+        
+        // Fechar modal ao clicar fora dele
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                console.log('Clicked outside modal');
+                this.closeTabModal();
             }
         });
+        
+        // Confirmar ação
+        confirmBtn.addEventListener('click', () => {
+            console.log('Confirm button clicked');
+            this.confirmTabAction();
+        });
+        
+        // Atalhos de teclado
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                console.log('Enter key pressed');
+                this.confirmTabAction();
+            } else if (e.key === 'Escape') {
+                console.log('Escape key pressed');
+                this.closeTabModal();
+            }
+        });
+        
+        this.modalEventsSetup = true;
+        console.log('Modal events setup complete');
     }
+    
+    confirmTabAction() {
+        console.log('Confirming tab action...');
+        const input = document.getElementById('tabNameInput');
+        const newName = input.value.trim();
+        
+        console.log('Action:', this.modalMode, 'Name:', newName, 'Current tab ID:', this.currentTabId);
+        
+        if (!newName) {
+            console.log('No name provided');
+            return;
+        }
+        
+        if (this.modalMode === 'rename' && this.currentTabId) {
+            console.log('Renaming tab to:', newName);
+            this.renameCodeTab(this.currentTabId, newName);
+        } else if (this.modalMode === 'create') {
+            console.log('Creating new tab with name:', newName);
+            this.createCodeTab(newName);
+        }
+        
+        this.closeTabModal();
+    }
+
+
 
     initializeExamples() {
         // Carregar exemplo BMC
@@ -827,6 +962,22 @@ revenue-streams:
                 this.updateCodeTabsUI();
             }
             
+            // Verificar se elementos do modal existem
+            console.log('Checking modal elements...');
+            const modal = document.getElementById('tabModal');
+            const input = document.getElementById('tabNameInput');
+            const closeBtn = document.getElementById('closeTabModal');
+            const cancelBtn = document.getElementById('cancelTab');
+            const confirmBtn = document.getElementById('confirmTab');
+            
+            console.log('Modal elements:', {
+                modal: !!modal,
+                input: !!input,
+                closeBtn: !!closeBtn,
+                cancelBtn: !!cancelBtn,
+                confirmBtn: !!confirmBtn
+            });
+            
             // Initialize Splitter
             this.initSplitter();
             
@@ -838,6 +989,8 @@ revenue-streams:
             
             // Update status
             this.updateStatus(i18n.t('ready'));
+            
+
             
             console.log('BMC Markdown App initialized successfully');
         } catch (error) {

@@ -105,6 +105,24 @@
         </div>
     </div>
 
+    <!-- Modal para renomear/criar aba -->
+    <div class="modal-overlay" id="tabModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="tabModalTitle">Renomear Aba</h3>
+                <button class="modal-close" id="closeTabModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="tabNameInput">Nome da aba:</label>
+                <input type="text" id="tabNameInput" placeholder="Digite o nome da aba">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelTab">Cancelar</button>
+                <button class="btn-primary" id="confirmTab">Renomear</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
     
