@@ -37,7 +37,17 @@ class I18n {
                 'lmc-example': 'LMC Example',
                 'zoom-out': 'Zoom Out',
                 'zoom-in': 'Zoom In',
-                'fit-screen': 'Fit to Screen'
+                'fit-screen': 'Fit to Screen',
+                'new-code-tab': 'New code tab',
+                'double-click-to-rename': 'Double click to rename',
+                'close-tab': 'Close tab',
+                'new-tab': 'New Tab',
+                'rename-tab': 'Rename Tab',
+                'create': 'Create',
+                'rename': 'Rename',
+                'cancel': 'Cancel',
+                'enter-tab-name': 'Enter tab name',
+                'enter-new-tab-name': 'Enter new tab name'
             },
             pt: {
                 // BMC Section Titles
@@ -73,7 +83,17 @@ class I18n {
                 'lmc-example': 'Exemplo LMC',
                 'zoom-out': 'Reduzir',
                 'zoom-in': 'Ampliar',
-                'fit-screen': 'Ajustar à Tela'
+                'fit-screen': 'Ajustar à Tela',
+                'new-code-tab': 'Nova aba de código',
+                'double-click-to-rename': 'Clique duplo para renomear',
+                'close-tab': 'Fechar aba',
+                'new-tab': 'Nova Aba',
+                'rename-tab': 'Renomear Aba',
+                'create': 'Criar',
+                'rename': 'Renomear',
+                'cancel': 'Cancelar',
+                'enter-tab-name': 'Digite o nome da aba',
+                'enter-new-tab-name': 'Digite o nome da nova aba'
             },
             es: {
                 // BMC Section Titles
@@ -109,7 +129,17 @@ class I18n {
                 'lmc-example': 'Ejemplo LMC',
                 'zoom-out': 'Reducir',
                 'zoom-in': 'Ampliar',
-                'fit-screen': 'Ajustar a Pantalla'
+                'fit-screen': 'Ajustar a Pantalla',
+                'new-code-tab': 'Nueva pestaña de código',
+                'double-click-to-rename': 'Doble clic para renombrar',
+                'close-tab': 'Cerrar pestaña',
+                'new-tab': 'Nueva Pestaña',
+                'rename-tab': 'Renombrar Pestaña',
+                'create': 'Crear',
+                'rename': 'Renombrar',
+                'cancel': 'Cancelar',
+                'enter-tab-name': 'Ingrese el nombre de la pestaña',
+                'enter-new-tab-name': 'Ingrese el nombre de la nueva pestaña'
             }
         };
     }

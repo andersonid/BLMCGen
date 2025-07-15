@@ -182,8 +182,8 @@ class BMCApp {
             const tabElement = document.createElement('div');
             tabElement.className = `code-tab ${tab.isActive ? 'active' : ''}`;
             tabElement.innerHTML = `
-                <span class="tab-name" data-tab-id="${tabId}" title="Duplo clique para renomear">${tab.name}</span>
-                ${this.codeTabs.size > 1 ? `<button class="tab-close" data-tab-id="${tabId}" title="Fechar aba">×</button>` : ''}
+                <span class="tab-name" data-tab-id="${tabId}" title="${i18n.t('double-click-to-rename')}">${tab.name}</span>
+                ${this.codeTabs.size > 1 ? `<button class="tab-close" data-tab-id="${tabId}" title="${i18n.t('close-tab')}">×</button>` : ''}
             `;
             codeTabsContainer.appendChild(tabElement);
         });
@@ -192,7 +192,7 @@ class BMCApp {
         const addTabButton = document.createElement('button');
         addTabButton.className = 'add-tab-btn';
         addTabButton.innerHTML = '+';
-        addTabButton.title = 'Nova aba de código';
+        addTabButton.title = i18n.t('new-code-tab');
         codeTabsContainer.appendChild(addTabButton);
         
         // Event listeners para as abas
@@ -282,16 +282,16 @@ class BMCApp {
                 return;
             }
             
-            title.textContent = 'Renomear Aba';
-            confirmBtn.textContent = 'Renomear';
+            title.textContent = i18n.t('rename-tab');
+            confirmBtn.textContent = i18n.t('rename');
             input.value = tab.name;
-            input.placeholder = 'Digite o nome da aba';
+            input.placeholder = i18n.t('enter-tab-name');
             
         } else if (mode === 'create') {
-            title.textContent = 'Nova Aba';
-            confirmBtn.textContent = 'Criar';
+            title.textContent = i18n.t('new-tab');
+            confirmBtn.textContent = i18n.t('create');
             input.value = '';
-            input.placeholder = 'Digite o nome da nova aba';
+            input.placeholder = i18n.t('enter-new-tab-name');
         }
         
         modal.classList.add('show');
@@ -886,7 +886,8 @@ revenue-streams:
             'saveBtn': i18n.t('save'),
             'zoomOutBtn': i18n.t('zoom-out'),
             'zoomInBtn': i18n.t('zoom-in'),
-            'fitBtn': i18n.t('fit-screen')
+            'fitBtn': i18n.t('fit-screen'),
+            'cancelTab': i18n.t('cancel')
         };
         
         // Update button texts
@@ -929,6 +930,9 @@ revenue-streams:
         if (developerInfo) {
             developerInfo.textContent = `${i18n.t('developed-by')} andersonid`;
         }
+        
+        // Update code tabs UI
+        this.updateCodeTabsUI();
     }
 
     async init() {
