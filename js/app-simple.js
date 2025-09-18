@@ -335,7 +335,7 @@ class BMCApp {
                 console.log('Response text:', responseText.substring(0, 200));
                 const userData = JSON.parse(responseText);
                 this.isAuthenticated = true;
-                this.user = userData.user;
+                this.user = userData.data.user;
                 this.authToken = token;
                 console.log('✅ User authenticated:', this.user.name);
             } else {
