@@ -2,7 +2,7 @@
 
 Este documento descreve a implementação do backend para o BMC Markdown Generator com funcionalidades de containerização, banco de dados e autenticação de usuários.
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ### Stack Tecnológica
 - **Backend**: Node.js + Express.js
@@ -29,7 +29,7 @@ Este documento descreve a implementação do backend para o BMC Markdown Generat
 └── package.json          # Scripts de desenvolvimento
 ```
 
-## 🚀 Funcionalidades Implementadas
+## Funcionalidades Implementadas
 
 ### 1. Autenticação e Usuários
 - **Registro de usuários** com validação de email
@@ -57,7 +57,7 @@ Este documento descreve a implementação do backend para o BMC Markdown Generat
 - **Redis** para cache/sessões
 - **Health checks** para monitoramento
 
-## 📊 Banco de Dados
+## Banco de Dados
 
 ### Tabelas Principais
 
@@ -83,7 +83,7 @@ Este documento descreve a implementação do backend para o BMC Markdown Generat
 - Controle de consentimento
 - Metadados e tags
 
-## 🔧 Configuração e Deploy
+## Configuração e Deploy
 
 ### Desenvolvimento Local
 
@@ -115,7 +115,7 @@ npm run docker:up
 3. **Configurar SSL/TLS**
 4. **Configurar backup do banco de dados**
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### Autenticação (`/api/auth`)
 - `POST /register` - Registrar usuário
@@ -139,7 +139,7 @@ npm run docker:up
 - `GET /stats` - Estatísticas do usuário
 - `DELETE /account` - Deletar conta
 
-## 🔒 Segurança
+## Segurança
 
 - **Rate limiting** para prevenir abuso
 - **Validação de entrada** com express-validator
@@ -149,14 +149,14 @@ npm run docker:up
 - **Helmet** para headers de segurança
 - **Sanitização** de dados de entrada
 
-## 📈 Monitoramento
+## Monitoramento
 
 - **Health checks** para todos os serviços
 - **Logs estruturados** para debugging
 - **Métricas de performance** de queries
 - **Rate limiting** com logs
 
-## 🚀 Próximos Passos
+## Próximos Passos
 
 1. **Implementar notificações por email**
 2. **Adicionar analytics** de uso
@@ -166,7 +166,7 @@ npm run docker:up
 6. **Implementar cache Redis**
 7. **Adicionar documentação Swagger**
 
-## 🛠️ Comandos Úteis
+## Comandos Úteis
 
 ```bash
 # Desenvolvimento
@@ -181,7 +181,7 @@ npm run docker:build         # Build das imagens
 npm run backend:start        # Iniciar backend
 ```
 
-## 📝 Notas de Desenvolvimento
+## Notas de Desenvolvimento
 
 - O frontend continua funcionando como antes
 - A API é totalmente compatível com o frontend existente

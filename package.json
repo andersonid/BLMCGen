@@ -12,6 +12,12 @@
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
     "docker:clean": "docker-compose down -v --remove-orphans",
+    "podman:build": "podman-compose -f docker-compose.podman.yml build",
+    "podman:up": "podman-compose -f docker-compose.podman.yml up -d",
+    "podman:down": "podman-compose -f docker-compose.podman.yml down",
+    "podman:logs": "podman-compose -f docker-compose.podman.yml logs -f",
+    "podman:clean": "podman-compose -f docker-compose.podman.yml down -v --remove-orphans",
+    "test:local": "./test-local.sh",
     "backend:install": "cd backend && npm install",
     "backend:dev": "cd backend && npm run dev",
     "backend:start": "cd backend && npm start"

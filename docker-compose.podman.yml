@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # Frontend (Nginx)
+  frontend:
+    build: .
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:3001
+
+  # Backend API
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://bmcuser:bmcpass@db:5432/bmcdb
+      - JWT_SECRET=local-development-jwt-secret-key-min-32-chars
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:80
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=email-smtp.us-east-1.amazonaws.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_USER=AKIAUZPGFCAYP4XENCPW
+      - SMTP_PASS=BJj+nJZmS70g1swGit8cNdarHA2MR1wDDsR8JAu1fA5b
+      - SMTP_FROM_NAME=BLMCGen App
+      - SMTP_FROM_EMAIL=noreply@nobre.ninja
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=bmcdb
+      - POSTGRES_USER=bmcuser
+      - POSTGRES_PASSWORD=bmcpass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+
+  # Redis (for sessions/caching)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

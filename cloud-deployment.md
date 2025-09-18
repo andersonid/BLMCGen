@@ -2,7 +2,7 @@
 
 Este guia fornece instruções para fazer deploy da aplicação em diferentes provedores de nuvem.
 
-## 🚀 Opções de Deploy
+## Opções de Deploy
 
 ### 1. DigitalOcean Droplet (Recomendado)
 
@@ -121,7 +121,7 @@ cp .env.production.example .env.production
 
 2. **Seguir mesmo processo do DigitalOcean**
 
-## 🔧 Configurações Específicas
+## Configurações Específicas
 
 ### Variáveis de Ambiente (.env.production)
 
@@ -169,7 +169,7 @@ server {
 }
 ```
 
-## 📊 Monitoramento
+## Monitoramento
 
 ### Logs
 ```bash
@@ -198,7 +198,7 @@ docker-compose -f docker-compose.prod.yml build --no-cache
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
-## 🔒 Segurança
+## Segurança
 
 ### Checklist de Segurança
 - [ ] Senhas fortes em todas as variáveis
@@ -223,7 +223,7 @@ sudo ufw enable
 sudo netstat -tlnp
 ```
 
-## 📈 Escalabilidade
+## Escalabilidade
 
 ### Para Alto Tráfego
 1. **Load Balancer**: Nginx ou CloudFlare
@@ -238,7 +238,7 @@ sudo netstat -tlnp
 - **Sentry**: Error tracking
 - **Uptime monitoring**: Pingdom ou UptimeRobot
 
-## 💰 Estimativas de Custo
+## Estimativas de Custo
 
 | Provedor | Configuração | Custo/mês | Notas |
 |----------|--------------|-----------|-------|
@@ -248,7 +248,7 @@ sudo netstat -tlnp
 | Google Cloud | e2-small + Cloud SQL | $50 | Boa integração |
 | Vultr | 2GB RAM, 1 CPU | $12 | Mais barato |
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Problemas Comuns
 
@@ -275,7 +275,7 @@ sudo certbot certificates
 docker stats
 ```
 
-## 📞 Suporte
+## Suporte
 
 Para problemas específicos:
 1. Verificar logs: `docker-compose logs -f`
