@@ -1,17 +1,16 @@
 version: '3.8'
 
 services:
-  # Frontend (Nginx)
   frontend:
     build: .
     ports:
       - "80:80"
+    environment:
+      - API_URL=http://backend:3001
     depends_on:
       - backend
-    environment:
-      - REACT_APP_API_URL=http://localhost:3001
+    restart: unless-stopped
 
-  # Backend API
   backend:
     build: ./backend
     ports:
@@ -19,15 +18,25 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://bmcuser:bmcpass@db:5432/bmcdb
-      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - SMTP_HOST=${SMTP_HOST:-email-smtp.us-east-1.amazonaws.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME:-BLMCGen App}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@nobre.ninja}
     depends_on:
       - db
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - redis
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # PostgreSQL Database
   db:
     image: postgres:15-alpine
     environment:
@@ -37,16 +46,23 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bmcuser -d bmcdb"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  # Redis (for sessions/caching)
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
