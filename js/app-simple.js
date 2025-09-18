@@ -628,8 +628,12 @@ cost-structure:
     }
 
     initCanvas() {
-        this.canvas = document.getElementById('canvas');
+        this.canvas = document.getElementById('bmcCanvas');
         this.ctx = this.canvas.getContext('2d');
+        
+        // Initialize Parser and Renderer
+        this.parser = new BMCParser();
+        this.renderer = new BMCRenderer(this.canvas, this.ctx);
         
         // Verificar integração PDF
         this.checkPDFIntegration();

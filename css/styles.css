@@ -235,13 +235,14 @@ body {
     max-height: 60px; /* Aumentar para acomodar melhor */
     overflow-x: auto;
     overflow-y: hidden;
-    display: none; /* Hidden by default */
+    display: block; /* Show by default */
     flex-shrink: 0; /* Não permitir que seja comprimido */
 }
 
 /* Show tabs when Code tab is active */
 .tab[data-tab="code"].active ~ .content-area .code-tabs-container,
-.code-tabs-container.show {
+.code-tabs-container.show,
+.code-tabs-container {
     display: block !important;
 }
 
