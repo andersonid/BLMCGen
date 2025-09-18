@@ -1,0 +1,38 @@
+{
+  "name": "bmc-markdown-generator",
+  "version": "2.2.0",
+  "description": "Business & Lean Model Canvas Generator with Backend API",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'No build step required for static frontend'",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --remove-orphans",
+    "backend:install": "cd backend && npm install",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start"
+  },
+  "keywords": [
+    "business-model-canvas",
+    "lean-model-canvas",
+    "canvas",
+    "markdown",
+    "generator",
+    "docker",
+    "api"
+  ],
+  "author": "andersonid",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andersonid/BLMCGen.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.8.0"
+  }
+}
