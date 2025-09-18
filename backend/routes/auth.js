@@ -11,7 +11,7 @@ const router = express.Router();
 
 // Register new user
 router.post('/register', [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail(),
   body('name').trim().isLength({ min: 2, max: 100 }),
   body('password').isLength({ min: 6 })
 ], async (req, res) => {
@@ -93,7 +93,7 @@ router.post('/register', [
 
 // Login user
 router.post('/login', [
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail(),
   body('password').notEmpty()
 ], async (req, res) => {
   try {
@@ -136,7 +136,7 @@ router.post('/login', [
     if (!user.is_verified) {
       return res.status(403).json({
         success: false,
-        error: 'Account not verified. Please check your email and verify your account before logging in.'
+        message: 'Conta não verificada. Verifique seu email e confirme sua conta antes de fazer login.'
       });
     }
 
@@ -184,8 +184,9 @@ router.post('/login', [
 // Get current user
 router.get('/me', authenticateToken, async (req, res) => {
   try {
+    console.log('Getting user data for ID:', req.user.id);
     const userResult = await query(
-      'SELECT id, email, name, is_verified, created_at, last_login, subscription_status FROM users WHERE id = $1',
+      'SELECT id, email, name, is_verified, created_at, last_login FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -269,16 +270,9 @@ router.get('/verify/:token', async (req, res) => {
       [tokenData.user_id]
     );
 
-    res.json({
-      success: true,
-      message: 'Email verified successfully. You can now log in.',
-      data: {
-        user: {
-          email: tokenData.email,
-          name: tokenData.name
-        }
-      }
-    });
+    // Redirect to login page with success message
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+    res.redirect(`${frontendUrl}/login.html?verified=true&message=Email verificado com sucesso! Agora você pode fazer login.`);
 
   } catch (error) {
     console.error('Email verification error:', error);
@@ -291,7 +285,7 @@ router.get('/verify/:token', async (req, res) => {
 
 // Resend verification email
 router.post('/resend-verification', [
-  body('email').isEmail().normalizeEmail()
+  body('email').isEmail()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -363,7 +357,7 @@ router.post('/resend-verification', [
 // Email sending function
 async function sendVerificationEmail(email, name, token) {
   try {
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: process.env.SMTP_PORT,
       secure: process.env.SMTP_SECURE === 'true',
@@ -373,24 +367,24 @@ async function sendVerificationEmail(email, name, token) {
       }
     });
 
-    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:8000'}/verify?token=${token}`;
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/api/auth/verify/${token}`;
 
     const mailOptions = {
       from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
       to: email,
-      subject: 'Verify your BMCGen account',
+      subject: 'Confirme sua conta BMCGen',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome to BMCGen, ${name}!</h2>
-          <p>Thank you for registering. Please verify your email address to complete your account setup.</p>
-          <p>Click the button below to verify your account:</p>
+          <h2>Bem-vindo ao BMCGen, ${name}!</h2>
+          <p>Obrigado por se registrar. Por favor, confirme seu endereço de email para completar a configuração da sua conta.</p>
+          <p>Clique no botão abaixo para confirmar sua conta:</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Account</a>
+            <a href="${verificationUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Confirmar Conta</a>
           </div>
-          <p>Or copy and paste this link into your browser:</p>
+          <p>Ou copie e cole este link no seu navegador:</p>
           <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
-          <p>This link will expire in 24 hours.</p>
-          <p>If you didn't create an account, please ignore this email.</p>
+          <p>Este link expira em 24 horas.</p>
+          <p>Se você não criou uma conta, ignore este email.</p>
         </div>
       `
     };

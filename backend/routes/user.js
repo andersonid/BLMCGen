@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/profile', authenticateToken, async (req, res) => {
   try {
     const userResult = await query(
-      'SELECT id, email, name, is_verified, created_at, last_login, subscription_status FROM users WHERE id = $1',
+      'SELECT id, email, name, is_verified, created_at, last_login FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -96,7 +96,7 @@ router.put('/profile', authenticateToken, [
     params.push(req.user.id);
 
     const userResult = await query(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, email, name, is_verified, created_at, last_login, subscription_status`,
+      `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, email, name, is_verified, created_at, last_login`,
       params
     );
 

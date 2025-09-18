@@ -14,21 +14,14 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log('JWT decoded:', decoded);
     
-    // Check if session still exists and is valid
-    const sessionResult = await query(
-      'SELECT u.*, s.expires_at FROM users u JOIN user_sessions s ON u.id = s.user_id WHERE s.token_hash = $1 AND s.expires_at > NOW()',
-      [token]
-    );
-
-    if (sessionResult.rows.length === 0) {
-      return res.status(401).json({ 
-        success: false, 
-        error: 'Invalid or expired session' 
-      });
-    }
-
-    req.user = sessionResult.rows[0];
+    // Get user data directly from JWT
+    req.user = {
+      id: decoded.userId,
+      email: decoded.email
+    };
+    console.log('User set:', req.user);
     next();
   } catch (error) {
     return res.status(403).json({ 
@@ -50,16 +43,11 @@ const optionalAuth = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    const sessionResult = await query(
-      'SELECT u.*, s.expires_at FROM users u JOIN user_sessions s ON u.id = s.user_id WHERE s.token_hash = $1 AND s.expires_at > NOW()',
-      [token]
-    );
-
-    if (sessionResult.rows.length > 0) {
-      req.user = sessionResult.rows[0];
-    } else {
-      req.user = null;
-    }
+    // Simplified auth without sessions
+    req.user = {
+      id: decoded.userId,
+      email: decoded.email
+    };
   } catch (error) {
     req.user = null;
   }

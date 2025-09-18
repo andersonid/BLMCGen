@@ -31,6 +31,9 @@ class BMCApp {
         this.modalEventsSetup = false;
         this.clickTimeout = null;
         
+        // API configuration
+        this.apiBaseUrl = '/api';
+        
         this.init();
     }
 
@@ -324,8 +327,13 @@ class BMCApp {
                 }
             });
 
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
             if (response.ok) {
-                const userData = await response.json();
+                const responseText = await response.text();
+                console.log('Response text:', responseText.substring(0, 200));
+                const userData = JSON.parse(responseText);
                 this.isAuthenticated = true;
                 this.user = userData.user;
                 this.authToken = token;

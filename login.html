@@ -122,6 +122,15 @@
             display: none;
         }
         
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #c3e6cb;
+        }
+        
         .loading {
             text-align: center;
             color: #666;
@@ -159,6 +168,7 @@
         <!-- Mensagens de erro/sucesso -->
         <div id="errorMessage" class="error-message"></div>
         <div id="verificationMessage" class="verification-message"></div>
+        <div id="successMessage" class="success-message"></div>
         
         <!-- Formulário de Login -->
         <form id="loginForm" class="auth-form">
@@ -210,7 +220,7 @@
     <script>
         class AuthManager {
             constructor() {
-                this.apiBaseUrl = 'http://localhost:3001/api';
+                this.apiBaseUrl = '/api';
                 this.isLoginMode = true;
                 this.setupEventListeners();
                 this.checkExistingAuth();
@@ -393,9 +403,16 @@
                 verificationDiv.style.display = 'block';
             }
             
+            showSuccess(message) {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+            }
+            
             hideMessages() {
                 document.getElementById('errorMessage').style.display = 'none';
                 document.getElementById('verificationMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
             }
             
             setLoading(loading) {
@@ -418,7 +435,14 @@
         
         // Inicializar quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
-            new AuthManager();
+            const authManager = new AuthManager();
+            
+            // Verificar parâmetros de URL para mensagens
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('verified') === 'true') {
+                const message = urlParams.get('message') || 'Email verificado com sucesso! Agora você pode fazer login.';
+                authManager.showSuccess(message);
+            }
         });
     </script>
 </body>
