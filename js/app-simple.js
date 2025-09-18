@@ -25,6 +25,9 @@ class BMCApp {
         this.exampleBMC = '';
         this.exampleLMC = '';
         
+        // Inicializar exemplos
+        this.initializeExamples();
+        
         // Modal de aba
         this.currentTabId = null;
         this.modalMode = null; // 'rename' ou 'create'
@@ -121,6 +124,70 @@ class BMCApp {
         
         this.saveCodeTabs();
         this.updateCodeTabsUI();
+        this.render();
+    }
+
+    switchMainTab(tabName) {
+        // Store current code content if we're leaving the code tab
+        if (this.currentTab === 'code' && this.activeCodeTabId) {
+            const currentCode = this.editor.getValue();
+            const activeTab = this.codeTabs.get(this.activeCodeTabId);
+            if (activeTab) {
+                activeTab.content = currentCode;
+                this.saveCodeTabs();
+            }
+            this.userCode = currentCode;
+        }
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab
+        const clickedTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (clickedTab) {
+            clickedTab.classList.add('active');
+        }
+        
+        // Update current tab
+        this.currentTab = tabName;
+        
+        // Handle code tabs container visibility
+        const codeTabsContainer = document.getElementById('codeTabsContainer');
+        if (tabName === 'code') {
+            // Show code tabs and make editor editable
+            if (codeTabsContainer) {
+                codeTabsContainer.classList.add('show');
+            }
+            this.editor.updateOptions({ readOnly: false });
+            
+            // Load active code tab content
+            if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
+                const activeTab = this.codeTabs.get(this.activeCodeTabId);
+                if (activeTab) {
+                    this.editor.setValue(activeTab.content);
+                }
+            }
+            
+            // Force update tabs UI
+            this.updateCodeTabsUI();
+        } else {
+            // Hide code tabs and make editor read-only
+            if (codeTabsContainer) {
+                codeTabsContainer.classList.remove('show');
+            }
+            this.editor.updateOptions({ readOnly: true });
+            
+            // Load example content
+            if (tabName === 'bmc-example') {
+                this.editor.setValue(this.exampleBMC);
+            } else if (tabName === 'lmc-example') {
+                this.editor.setValue(this.exampleLMC);
+            }
+        }
+        
+        // Re-render canvas
         this.render();
     }
 
@@ -389,103 +456,236 @@ class BMCApp {
     }
 
     initializeExamples() {
-        this.exampleBMC = `bmc
-title: Food Delivery Platform
-description: A platform connecting restaurants with customers for food delivery
-customer-segments:
-  - Busy professionals
-  - Families with children
-  - Students
-  - Elderly people
-value-propositions:
-  - Convenient food delivery
-  - Wide restaurant selection
-  - Real-time tracking
-  - Multiple payment options
-channels:
-  - Mobile app
-  - Website
-  - Social media
-  - Partner restaurants
-customer-relationships:
-  - Self-service platform
-  - Customer support
-  - Loyalty programs
-  - Feedback system
-revenue-streams:
-  - Delivery fees
-  - Commission from restaurants
-  - Premium subscriptions
-  - Advertising
-key-resources:
-  - Technology platform
-  - Delivery network
-  - Restaurant partnerships
-  - Customer data
-key-activities:
-  - Platform development
-  - Order processing
-  - Delivery coordination
-  - Customer support
-key-partnerships:
-  - Restaurants
-  - Delivery drivers
-  - Payment processors
-  - Technology providers
-cost-structure:
-  - Technology development
-  - Marketing
-  - Operations
-  - Customer support`;
+        // Carregar exemplo BMC
+        this.exampleBMC = `# BUSINESS MODEL CANVAS (BMC) - EXEMPLO EXPLICATIVO
+# 
+# O Business Model Canvas é uma ferramenta estratégica que descreve de forma visual
+# como uma empresa cria, entrega e captura valor. Ele é dividido em 9 blocos fundamentais.
 
-        this.exampleLMC = `lmc
-title: Uber
-description: Ride-sharing platform connecting drivers with passengers
-problem:
-  - Expensive taxi services
-  - Limited availability
-  - Poor user experience
-  - Lack of transparency
-solution:
-  - On-demand ride sharing
-  - Real-time tracking
-  - Transparent pricing
-  - Rating system
-unique-value-proposition:
-  - Affordable transportation
-  - Convenient booking
-  - Reliable service
-  - Safety features
-unfair-advantage:
-  - Network effects
-  - Brand recognition
-  - Technology platform
-  - Driver network
-customer-segments:
-  - Urban commuters
-  - Business travelers
-  - Event attendees
-  - Late-night users
-key-metrics:
-  - Rides per day
-  - Driver utilization
-  - Customer satisfaction
-  - Revenue per ride
+bmc
+title: Netflix - Plataforma de Streaming
+description: Serviço de streaming de vídeo por assinatura
+
+# 🤝 PARCERIAS-CHAVE
+# Quem são nossos parceiros estratégicos?
+# Que atividades eles realizam? Que recursos eles fornecem?
+key-partnerships:
+  - Estúdios de Hollywood (Disney, Warner Bros)
+  - Produtoras independentes de conteúdo
+  - Provedores de internet (ISPs)
+  - Dispositivos inteligentes (Samsung, LG, Roku)
+  - Plataformas de pagamento (PayPal, cartões)
+  - Serviços de cloud computing (AWS)
+
+# ⚡ ATIVIDADES-CHAVE  
+# Que atividades mais importantes nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes? Fontes de receita?
+key-activities:
+  - Licenciamento de conteúdo
+  - Produção de conteúdo original
+  - Desenvolvimento de tecnologia de streaming
+  - Análise de dados e algoritmos de recomendação
+  - Marketing e aquisição de usuários
+  - Atendimento ao cliente
+
+# 🔑 RECURSOS-CHAVE
+# Que recursos mais importantes nossa proposta de valor exige?
+# Nossos canais de distribuição? Relacionamento com clientes?
+key-resources:
+  - Plataforma tecnológica robusta
+  - Biblioteca de conteúdo licenciado
+  - Conteúdo original exclusivo
+  - Algoritmos de recomendação
+  - Marca global reconhecida
+  - Equipe de desenvolvimento e criação
+
+# 💰 PROPOSTA DE VALOR
+# Que valor entregamos aos clientes?
+# Qual problema estamos resolvendo?
+# Que necessidades satisfazemos?
+value-propositions:
+  - Entretenimento sob demanda 24/7
+  - Conteúdo original exclusivo de alta qualidade
+  - Experiência personalizada com recomendações
+  - Múltiplas telas e dispositivos
+  - Sem comerciais durante a reprodução
+  - Preço acessível comparado à TV a cabo
+
+# 🤝 RELACIONAMENTO COM CLIENTES
+# Que tipo de relacionamento estabelecemos?
+# Como mantemos e desenvolvemos?
+customer-relationships:
+  - Autoatendimento via plataforma
+  - Suporte técnico 24/7
+  - Comunidade online de fãs
+  - Programas de fidelidade
+  - Comunicação personalizada
+  - Feedback e avaliações de conteúdo
+
+# 📢 CANAIS
+# Através de quais canais alcançamos nossos clientes?
+# Como nossos canais se integram?
 channels:
-  - Mobile app
-  - Website
-  - Referral program
-  - Partnerships
+  - Plataforma web (Netflix.com)
+  - Aplicativos móveis (iOS, Android)
+  - Smart TVs e dispositivos streaming
+  - Parcerias com operadoras de TV
+  - Marketing digital e redes sociais
+  - Recomendações boca a boca
+
+# 👥 SEGMENTOS DE CLIENTES
+# Para quem criamos valor?
+# Quem são nossos clientes mais importantes?
+customer-segments:
+  - Famílias com crianças
+  - Jovens adultos (18-35 anos)
+  - Entusiastas de séries e filmes
+  - Consumidores de conteúdo internacional
+  - Pessoas que cortaram TV a cabo
+  - Usuários de múltiplos dispositivos
+
+# 💸 ESTRUTURA DE CUSTOS
+# Quais são os custos mais importantes?
+# Quais recursos e atividades são mais caros?
 cost-structure:
-  - Driver payments
-  - Technology costs
-  - Marketing
-  - Operations
+  - Licenciamento de conteúdo (maior custo)
+  - Produção de conteúdo original
+  - Infraestrutura tecnológica e cloud
+  - Marketing e aquisição de usuários
+  - Desenvolvimento de software
+  - Custos operacionais e pessoal
+
+# 💵 FONTES DE RECEITA
+# Por que valor nossos clientes pagam?
+# Como e quanto pagam atualmente?
 revenue-streams:
-  - Commission from rides
-  - Surge pricing
-  - Premium services
-  - Advertising`;
+  - Assinaturas mensais recorrentes
+  - Planos diferenciados (Básico, Padrão, Premium)
+  - Expansão geográfica internacional
+  - Parcerias e licenciamento de conteúdo
+  - Merchandising de conteúdo original`;
+
+        // Carregar exemplo LMC
+        this.exampleLMC = `# LEAN MODEL CANVAS (LMC) - EXEMPLO EXPLICATIVO
+#
+# O Lean Model Canvas é uma adaptação do Business Model Canvas focada em startups
+# e validação rápida de hipóteses de negócio. É mais enxuto e orientado a problemas.
+
+lmc
+title: Uber - Aplicativo de Transporte
+description: Plataforma que conecta passageiros e motoristas para viagens urbanas
+
+# ❗ PROBLEMA
+# Quais são os 3 principais problemas que você está resolvendo?
+# Liste os problemas existentes e como eles são resolvidos hoje.
+# Identifique qual é o problema #1 mais crítico.
+problem:
+  - Dificuldade de encontrar táxi em horários de pico
+  - Preços altos e não transparentes do transporte
+  - Falta de segurança e confiabilidade nos táxis
+  - Tempo de espera longo e incerteza
+  - Experiência inconsistente de atendimento
+  - Métodos de pagamento limitados
+
+# 💡 SOLUÇÃO
+# Como você resolve cada problema?
+# Qual é o Produto Mínimo Viável (MVP)?
+# Liste as 3 principais funcionalidades.
+solution:
+  - App que conecta passageiros e motoristas em tempo real
+  - Sistema de GPS para rastreamento e otimização de rotas
+  - Preços dinâmicos transparentes calculados pelo app
+  - Sistema de avaliação mútua (motorista/passageiro)
+  - Pagamento integrado sem dinheiro físico
+  - Histórico completo de viagens
+
+# ⭐ PROPOSTA ÚNICA DE VALOR
+# Por que você é diferente e vale a pena comprar?
+# Que valor você entrega? Para qual cliente?
+# Mensagem clara e convincente para o cliente.
+unique-value-proposition:
+  - "Transporte confiável ao toque de um botão"
+  - Chegada em minutos, não horas
+  - Preço justo e transparente
+  - Segurança através de rastreamento e avaliações
+  - Conveniência total: sem dinheiro, sem ligações
+
+# 🏆 VANTAGEM COMPETITIVA
+# Algo que não pode ser copiado ou comprado facilmente.
+# Que recursos especiais você possui?
+# Proteção contra competição (patentes, marca, etc.)
+unfair-advantage:
+  - Efeito de rede: mais motoristas atraem mais passageiros
+  - Algoritmos patenteados de matching e preços dinâmicos
+  - Primeira empresa no mercado (vantagem do pioneiro)
+  - Dados massivos de mobilidade urbana
+  - Marca global reconhecida e confiável
+  - Capital e recursos para expansão rápida
+
+# 👥 SEGMENTOS DE CLIENTES
+# Quem são seus primeiros clientes? (early adopters)
+# Como você define seu cliente ideal?
+# Para qual nicho específico você está construindo?
+customer-segments:
+  - Profissionais urbanos (25-45 anos) com smartphone
+  - Pessoas que não possuem carro próprio
+  - Turistas e visitantes em cidades grandes
+  - Usuários que valorizam conveniência sobre preço
+  - Millennials tech-savvy em áreas metropolitanas
+  - Executivos que precisam de transporte confiável
+
+# 📊 MÉTRICAS-CHAVE
+# Como você mede o sucesso?
+# Quais números direcionam seu negócio?
+# Como você rastreia suas atividades?
+key-metrics:
+  - Número de viagens completadas por mês
+  - Taxa de crescimento de usuários ativos
+  - Tempo médio de espera do passageiro
+  - Taxa de retenção de motoristas e passageiros
+  - Receita por viagem e por usuário
+  - Net Promoter Score (NPS)
+  - Cobertura geográfica (% da cidade atendida)
+  - Tempo médio de chegada do motorista
+
+# 📱 CANAIS
+# Como você alcança seus clientes?
+# Qual caminho você usa para entregá-los?
+# Como seus canais se integram? Quais funcionam melhor?
+channels:
+  - Aplicativo móvel (iOS/Android) - principal
+  - Marketing digital e redes sociais
+  - Programa de indicação com desconto
+  - Parcerias com empresas para funcionários
+  - Eventos e ativações em pontos estratégicos
+  - PR e imprensa especializada
+  - Marketing de guerrilha em universidades
+
+# 💰 ESTRUTURA DE CUSTOS
+# Quais são seus maiores custos?
+# Quais atividades/recursos são mais caros?
+# Seu modelo é direcionado por custo ou valor?
+cost-structure:
+  - Incentivos e bonificações para motoristas
+  - Marketing e aquisição de usuários
+  - Desenvolvimento e manutenção da tecnologia
+  - Operações locais e suporte ao cliente
+  - Salários da equipe técnica e operacional
+  - Seguros e questões regulamentares
+  - Infraestrutura de servidores e dados
+
+# 💵 FONTES DE RECEITA
+# Como você ganha dinheiro?
+# Por qual valor os clientes pagam?
+# Como eles preferem pagar? Quanto cada fonte contribui?
+revenue-streams:
+  - Comissão de 20-25% sobre cada viagem
+  - Taxa de cancelamento para passageiros
+  - Taxa de conveniência em horários de pico
+  - Surge pricing (preços dinâmicos) em alta demanda
+  - Uber Premium/Black (viagens de luxo)
+  - Parcerias corporativas (Uber for Business)
+  - Receitas futuras: delivery, freight, etc.`;
     }
 
     loadExample() {
@@ -674,9 +874,13 @@ cost-structure:
         document.getElementById('loadBtn').addEventListener('click', () => this.loadFromFile());
         document.getElementById('saveBtn').addEventListener('click', () => this.saveToFile());
 
-        // Botões de exemplo
-        document.getElementById('bmcExampleBtn').addEventListener('click', () => this.loadBMCExample());
-        document.getElementById('lmcExampleBtn').addEventListener('click', () => this.loadLMCExample());
+        // Abas principais
+        document.querySelectorAll('.tab[data-tab]').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.getAttribute('data-tab');
+                this.switchMainTab(tabName);
+            });
+        });
 
         // Seletor de idioma
         document.getElementById('languageSelect').addEventListener('change', (e) => {
@@ -786,14 +990,14 @@ cost-structure:
     loadBMCExample() {
         if (this.editor) {
             this.editor.setValue(this.exampleBMC);
-            this.autoSave();
+            this.render();
         }
     }
 
     loadLMCExample() {
         if (this.editor) {
             this.editor.setValue(this.exampleLMC);
-            this.autoSave();
+            this.render();
         }
     }
 
