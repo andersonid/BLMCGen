@@ -129,6 +129,7 @@
             border-radius: 5px;
             margin-bottom: 1rem;
             border: 1px solid #c3e6cb;
+            display: none;
         }
         
         .loading {
@@ -308,8 +309,14 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        localStorage.setItem('bmcgen_auth_token', data.token);
-                        localStorage.setItem('bmcgen_user', JSON.stringify(data.user));
+                        const token = data?.data?.token || data?.token;
+                        const user = data?.data?.user || data?.user;
+                        if (!token || !user) {
+                            this.showError('Resposta inválida do servidor');
+                            return;
+                        }
+                        localStorage.setItem('bmcgen_auth_token', token);
+                        localStorage.setItem('bmcgen_user', JSON.stringify(user));
                         window.location.href = 'index.html';
                     } else {
                         this.showError(data.message || 'Erro ao fazer login');

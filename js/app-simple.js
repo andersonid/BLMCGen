@@ -319,8 +319,10 @@ class BMCApp {
                 return;
             }
 
-            console.log('🌐 Checking token with API...');
-            const response = await fetch(`${this.apiBaseUrl}/auth/me`, {
+            const apiBase = (this.apiBaseUrl || '/api').replace(/\/+$/, '');
+            const meUrl = `${apiBase}/auth/me`;
+            console.log('🌐 Checking token with API...', meUrl);
+            const response = await fetch(meUrl, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -329,13 +331,26 @@ class BMCApp {
 
             console.log('Response status:', response.status);
             console.log('Response ok:', response.ok);
+            const contentType = response.headers.get && response.headers.get('content-type');
+            console.log('Response content-type:', contentType);
             
             if (response.ok) {
-                const responseText = await response.text();
-                console.log('Response text:', responseText.substring(0, 200));
-                const userData = JSON.parse(responseText);
+                // Prefer JSON directly; fallback to text -> JSON
+                let payload;
+                try {
+                    if (contentType && contentType.includes('application/json')) {
+                        payload = await response.json();
+                    } else {
+                        const responseText = await response.text();
+                        console.log('Response text:', responseText.substring(0, 200));
+                        payload = JSON.parse(responseText);
+                    }
+                } catch (e) {
+                    console.error('Failed to parse /auth/me JSON:', e);
+                    throw e;
+                }
                 this.isAuthenticated = true;
-                this.user = userData.data.user;
+                this.user = (payload && (payload.data && payload.data.user)) || payload.user;
                 this.authToken = token;
                 console.log('✅ User authenticated:', this.user.name);
             } else {
