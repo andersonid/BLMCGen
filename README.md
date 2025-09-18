@@ -163,17 +163,23 @@ revenue-streams:
    cd BLMCGen
    ```
 
-2. **Execute um servidor local**:
+2. **Abra direto no navegador (recomendado)**
+   - Abra o arquivo `index.html` no navegador.
+   - Não é necessário rodar servidor web.
+
+3. **(Opcional) Usar um servidor local**
+   Caso prefira acessar via `http://localhost`, você pode usar:
    ```bash
    # Python 3
    python -m http.server 8000
-   
+
    # Node.js
    npx http-server
-   
+
    # PHP
    php -S localhost:8000
    ```
+   Depois acesse: `http://localhost:8000`
 
 3. **Acesse no navegador**: `http://localhost:8000`
 
