@@ -7,11 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE,
+    email_verification_token VARCHAR(255),
+    email_verification_expires TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP WITH TIME ZONE,
-    subscription_status VARCHAR(50) DEFAULT 'free',
-    email_marketing_consent BOOLEAN DEFAULT TRUE
+    last_login TIMESTAMP WITH TIME ZONE
 );
 
 -- Canvas table
@@ -39,28 +39,26 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     user_agent TEXT
 );
 
--- Email marketing table
-CREATE TABLE IF NOT EXISTS email_marketing (
+-- Email verification tokens table
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) NOT NULL,
-    name VARCHAR(255),
-    source VARCHAR(100) DEFAULT 'website',
-    subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    unsubscribed_at TIMESTAMP WITH TIME ZONE,
-    is_active BOOLEAN DEFAULT TRUE,
-    tags TEXT[],
-    metadata JSONB
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    used_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_verified ON users(is_verified);
 CREATE INDEX IF NOT EXISTS idx_canvas_user_id ON canvas(user_id);
 CREATE INDEX IF NOT EXISTS idx_canvas_type ON canvas(canvas_type);
 CREATE INDEX IF NOT EXISTS idx_canvas_public ON canvas(is_public);
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON user_sessions(token_hash);
-CREATE INDEX IF NOT EXISTS idx_email_marketing_email ON email_marketing(email);
-CREATE INDEX IF NOT EXISTS idx_email_marketing_active ON email_marketing(is_active);
+CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON email_verification_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_verification_tokens_user_id ON email_verification_tokens(user_id);
 
 -- Update triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -77,7 +75,11 @@ CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 CREATE TRIGGER update_canvas_updated_at BEFORE UPDATE ON canvas
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Insert sample data for testing
+-- Insert admin user for testing (password: admin123)
 INSERT INTO users (email, name, password_hash, is_verified) 
-VALUES ('admin@bmcgen.com', 'Admin User', '$2a$10$dummy.hash.for.testing', TRUE)
+VALUES ('admin@bmcgen.com', 'Admin User', '$2b$12$Zix2lniz9l7agMOXaeG5uOVmA0RQKS4wOyAIOpiYoNelINq2wRid.', TRUE)
 ON CONFLICT (email) DO NOTHING;
+
+-- Disable SSL for local development
+ALTER SYSTEM SET ssl = off;
+SELECT pg_reload_conf();

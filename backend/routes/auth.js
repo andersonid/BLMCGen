@@ -1,9 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
 const { authenticateToken } = require('../middleware/auth');
+const nodemailer = require('nodemailer');
 
 const router = express.Router();
 
@@ -11,8 +13,7 @@ const router = express.Router();
 router.post('/register', [
   body('email').isEmail().normalizeEmail(),
   body('name').trim().isLength({ min: 2, max: 100 }),
-  body('password').isLength({ min: 6 }),
-  body('emailMarketingConsent').optional().isBoolean()
+  body('password').isLength({ min: 6 })
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -24,61 +25,60 @@ router.post('/register', [
       });
     }
 
-    const { email, name, password, emailMarketingConsent = true } = req.body;
+    const { email, name, password } = req.body;
 
     // Check if user already exists
-    const existingUser = await query('SELECT id FROM users WHERE email = $1', [email]);
+    const existingUser = await query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
     if (existingUser.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        error: 'User already exists'
-      });
+      if (existingUser.rows[0].is_verified) {
+        return res.status(409).json({
+          success: false,
+          error: 'User already exists and is verified'
+        });
+      } else {
+        return res.status(409).json({
+          success: false,
+          error: 'User already exists but email not verified. Please check your email or request a new verification link.'
+        });
+      }
     }
 
     // Hash password
     const saltRounds = 12;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Create user (not verified)
     const userResult = await query(
-      'INSERT INTO users (email, name, password_hash, email_marketing_consent) VALUES ($1, $2, $3, $4) RETURNING id, email, name, created_at',
-      [email, name, passwordHash, emailMarketingConsent]
+      'INSERT INTO users (email, name, password_hash, email_verification_token, email_verification_expires) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, name, created_at',
+      [email, name, passwordHash, verificationToken, verificationExpires]
     );
 
     const user = userResult.rows[0];
 
-    // Add to email marketing if consented
-    if (emailMarketingConsent) {
-      await query(
-        'INSERT INTO email_marketing (email, name, source) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET is_active = TRUE',
-        [email, name, 'registration']
-      );
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // Store session
+    // Store verification token
     await query(
-      'INSERT INTO user_sessions (user_id, token_hash, expires_at, ip_address, user_agent) VALUES ($1, $2, $3, $4, $5)',
-      [user.id, token, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), req.ip, req.get('User-Agent')]
+      'INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, verificationToken, verificationExpires]
     );
+
+    // Send verification email
+    await sendVerificationEmail(email, name, verificationToken);
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully. Please check your email to verify your account.',
       data: {
         user: {
           id: user.id,
           email: user.email,
           name: user.name,
+          isVerified: false,
           createdAt: user.created_at
-        },
-        token
+        }
       }
     });
 
@@ -129,6 +129,14 @@ router.post('/login', [
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
+      });
+    }
+
+    // Check if user is verified
+    if (!user.is_verified) {
+      return res.status(403).json({
+        success: false,
+        error: 'Account not verified. Please check your email and verify your account before logging in.'
       });
     }
 
@@ -228,5 +236,171 @@ router.post('/logout', authenticateToken, async (req, res) => {
     });
   }
 });
+
+// Verify email
+router.get('/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find verification token
+    const tokenResult = await query(
+      'SELECT evt.*, u.email, u.name FROM email_verification_tokens evt JOIN users u ON evt.user_id = u.id WHERE evt.token = $1 AND evt.used_at IS NULL AND evt.expires_at > NOW()',
+      [token]
+    );
+
+    if (tokenResult.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired verification token'
+      });
+    }
+
+    const tokenData = tokenResult.rows[0];
+
+    // Mark token as used
+    await query(
+      'UPDATE email_verification_tokens SET used_at = NOW() WHERE id = $1',
+      [tokenData.id]
+    );
+
+    // Verify user
+    await query(
+      'UPDATE users SET is_verified = TRUE, email_verification_token = NULL, email_verification_expires = NULL WHERE id = $1',
+      [tokenData.user_id]
+    );
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully. You can now log in.',
+      data: {
+        user: {
+          email: tokenData.email,
+          name: tokenData.name
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Email verification failed'
+    });
+  }
+});
+
+// Resend verification email
+router.post('/resend-verification', [
+  body('email').isEmail().normalizeEmail()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { email } = req.body;
+
+    // Find user
+    const userResult = await query(
+      'SELECT id, email, name, is_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.is_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'User is already verified'
+      });
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    // Update user with new token
+    await query(
+      'UPDATE users SET email_verification_token = $1, email_verification_expires = $2 WHERE id = $3',
+      [verificationToken, verificationExpires, user.id]
+    );
+
+    // Store new verification token
+    await query(
+      'INSERT INTO email_verification_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)',
+      [user.id, verificationToken, verificationExpires]
+    );
+
+    // Send verification email
+    await sendVerificationEmail(email, user.name, verificationToken);
+
+    res.json({
+      success: true,
+      message: 'Verification email sent successfully'
+    });
+
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to resend verification email'
+    });
+  }
+});
+
+// Email sending function
+async function sendVerificationEmail(email, name, token) {
+  try {
+    const transporter = nodemailer.createTransporter({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+
+    const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:8000'}/verify?token=${token}`;
+
+    const mailOptions = {
+      from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
+      to: email,
+      subject: 'Verify your BMCGen account',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Welcome to BMCGen, ${name}!</h2>
+          <p>Thank you for registering. Please verify your email address to complete your account setup.</p>
+          <p>Click the button below to verify your account:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Account</a>
+          </div>
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
+          <p>This link will expire in 24 hours.</p>
+          <p>If you didn't create an account, please ignore this email.</p>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Verification email sent to ${email}`);
+  } catch (error) {
+    console.error('Error sending verification email:', error);
+    throw error;
+  }
+}
 
 module.exports = router;

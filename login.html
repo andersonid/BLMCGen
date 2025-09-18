@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - BLMCGen</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h1 {
+            color: #333;
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+        
+        .login-header p {
+            color: #666;
+            margin: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1rem;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-link {
+            background: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9rem;
+            padding: 0;
+        }
+        
+        .btn-link:hover {
+            color: #5a6fd8;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .verification-message {
+            background: #efe;
+            color: #363;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .form-toggle {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        
+        .form-toggle button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .form-toggle button:hover {
+            color: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>📊 BLMCGen</h1>
+            <p>Business & Lean Model Canvas Generator</p>
+        </div>
+        
+        <!-- Mensagens de erro/sucesso -->
+        <div id="errorMessage" class="error-message"></div>
+        <div id="verificationMessage" class="verification-message"></div>
+        
+        <!-- Formulário de Login -->
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword">Senha:</label>
+                <input type="password" id="loginPassword" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn" id="loginBtn">Entrar</button>
+        </form>
+        
+        <!-- Formulário de Registro -->
+        <form id="registerForm" class="auth-form hidden">
+            <div class="form-group">
+                <label for="registerName">Nome completo:</label>
+                <input type="text" id="registerName" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="registerPassword">Senha:</label>
+                <input type="password" id="registerPassword" name="password" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn" id="registerBtn">Registrar</button>
+        </form>
+        
+        <!-- Botões de alternância -->
+        <div class="form-toggle">
+            <button type="button" id="toggleToRegister">Não tem conta? Registre-se</button>
+            <button type="button" id="toggleToLogin" class="hidden">Já tem conta? Faça login</button>
+        </div>
+        
+        <!-- Botão de reenvio de verificação -->
+        <div class="form-toggle">
+            <button type="button" id="resendVerification" class="hidden">Reenviar email de verificação</button>
+        </div>
+    </div>
+
+    <script>
+        class AuthManager {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:3001/api';
+                this.isLoginMode = true;
+                this.setupEventListeners();
+                this.checkExistingAuth();
+            }
+            
+            setupEventListeners() {
+                // Formulários
+                document.getElementById('loginForm').addEventListener('submit', (e) => this.handleLogin(e));
+                document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
+                
+                // Botões de alternância
+                document.getElementById('toggleToRegister').addEventListener('click', () => this.toggleMode('register'));
+                document.getElementById('toggleToLogin').addEventListener('click', () => this.toggleMode('login'));
+                
+                // Reenvio de verificação
+                document.getElementById('resendVerification').addEventListener('click', () => this.resendVerification());
+            }
+            
+            async checkExistingAuth() {
+                try {
+                    const token = localStorage.getItem('bmcgen_auth_token');
+                    if (!token) return;
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Usuário já autenticado, redirecionar
+                        window.location.href = 'index.html';
+                    } else {
+                        // Token inválido, remover
+                        localStorage.removeItem('bmcgen_auth_token');
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar autenticação:', error);
+                    localStorage.removeItem('bmcgen_auth_token');
+                }
+            }
+            
+            toggleMode(mode) {
+                this.isLoginMode = mode === 'login';
+                
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                const toggleToRegister = document.getElementById('toggleToRegister');
+                const toggleToLogin = document.getElementById('toggleToLogin');
+                
+                if (mode === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    toggleToRegister.classList.remove('hidden');
+                    toggleToLogin.classList.add('hidden');
+                } else {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                    toggleToRegister.classList.add('hidden');
+                    toggleToLogin.classList.remove('hidden');
+                }
+                
+                this.hideMessages();
+            }
+            
+            async handleLogin(e) {
+                e.preventDefault();
+                this.hideMessages();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    this.setLoading(true);
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        localStorage.setItem('bmcgen_auth_token', data.token);
+                        localStorage.setItem('bmcgen_user', JSON.stringify(data.user));
+                        window.location.href = 'index.html';
+                    } else {
+                        this.showError(data.message || 'Erro ao fazer login');
+                    }
+                } catch (error) {
+                    console.error('Erro no login:', error);
+                    this.showError('Erro de conexão. Tente novamente.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            async handleRegister(e) {
+                e.preventDefault();
+                this.hideMessages();
+                
+                const name = document.getElementById('registerName').value;
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                
+                try {
+                    this.setLoading(true);
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name, email, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.showVerification('Conta criada! Verifique seu email para ativar a conta.');
+                        this.toggleMode('login');
+                    } else {
+                        this.showError(data.message || 'Erro ao criar conta');
+                    }
+                } catch (error) {
+                    console.error('Erro no registro:', error);
+                    this.showError('Erro de conexão. Tente novamente.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            async resendVerification() {
+                const email = document.getElementById('loginEmail').value || document.getElementById('registerEmail').value;
+                
+                if (!email) {
+                    this.showError('Digite seu email primeiro');
+                    return;
+                }
+                
+                try {
+                    this.setLoading(true);
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/auth/resend-verification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.showVerification('Email de verificação reenviado!');
+                    } else {
+                        this.showError(data.message || 'Erro ao reenviar email');
+                    }
+                } catch (error) {
+                    console.error('Erro ao reenviar verificação:', error);
+                    this.showError('Erro de conexão. Tente novamente.');
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+            
+            showVerification(message) {
+                const verificationDiv = document.getElementById('verificationMessage');
+                verificationDiv.textContent = message;
+                verificationDiv.style.display = 'block';
+            }
+            
+            hideMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('verificationMessage').style.display = 'none';
+            }
+            
+            setLoading(loading) {
+                const loginBtn = document.getElementById('loginBtn');
+                const registerBtn = document.getElementById('registerBtn');
+                
+                if (loading) {
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Entrando...';
+                    registerBtn.disabled = true;
+                    registerBtn.textContent = 'Registrando...';
+                } else {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Entrar';
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = 'Registrar';
+                }
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthManager();
+        });
+    </script>
+</body>
+</html>
