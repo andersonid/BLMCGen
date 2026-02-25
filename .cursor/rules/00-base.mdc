@@ -1,0 +1,42 @@
+---
+description: Base rules applied to every project.
+alwaysApply: true
+---
+
+# Cursor Base Rules (00-base)
+
+## Objetivo
+Deixar novos chats/agents produtivos rapidamente e com segurança.
+
+## Política de execução (safe-by-default)
+- Você PODE executar comandos **somente leitura** para entender o projeto (sem pedir antes).
+  Exemplos: listar arquivos, ler README/docs, `rg`, `git status`, `git diff`, `git log`.
+- Você DEVE pedir aprovação antes de qualquer coisa que mude estado:
+  - criar/editar arquivos (patch, refactor, formatação)
+  - instalar dependências
+  - rodar build/tests/dev servers que gerem artefatos
+  - rodar migrations de banco
+  - `git commit`/`git push`
+  - ações de deploy/redeploy
+  - comandos destrutivos (rm, reset, clean, force)
+
+Ao pedir aprovação, listar: plano, arquivos/comandos, impacto e rollback (se aplicável).
+
+## Primeiros passos em todo novo chat (obrigatório)
+1) Ler, nesta ordem (se existirem):
+   - `README.md`
+   - `docs/CONCEPT.md`
+   - `docs/RUNBOOK.md`
+   - `docs/SESSION_NOTES.md`
+2) Discovery (somente leitura):
+   - `git status`
+   - estrutura de pastas
+   - manifests (ex.: `package.json`, `backend/package.json`)
+
+## Princípios
+- Não assumir convenções sem ler docs/código.
+- Preferir mudanças pequenas e reversíveis.
+- Sem segredos no repo: usar env vars; revisar `.gitignore`.
+
+## Comunicação
+- PT-BR por padrão, com português correto (acentos/pontuação/gramática).

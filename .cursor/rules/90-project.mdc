@@ -1,0 +1,28 @@
+---
+description: Project memory (facts, decisions, commands).
+alwaysApply: true
+---
+
+# BMCMarkdown / BLMCGen — Project memory (90-project)
+
+## Identidade
+- Nome: BLMCGen (BMC/LMC Markdown Generator)
+- Repo: (preencher)
+- Frontend: estático (HTML/CSS/JS) — pode abrir `index.html` direto
+- Backend: Node.js + Express (em `backend/`)
+- DB/Infra: Docker Compose (PostgreSQL) + Nginx; deploy pode ser via Coolify
+
+## Como rodar (alto nível)
+- Frontend (rápido): abrir `index.html` no navegador
+- Dev server simples (opcional): `npm run dev` (Python http.server na porta 8000)
+- Backend:
+  - `npm run backend:install`
+  - `npm run backend:dev`
+
+## Deploy
+- Ver `README-DEPLOY.md`, `docker-compose.yml`, `cloud-deployment.md`.
+- Health (backend): `GET /health` (ver README-DEPLOY).
+
+## Convenções
+- Antes de qualquer mudança: ler `README.md` e alinhar com o objetivo.
+- Mudanças grandes: propor patch/diff e pedir aprovação.

@@ -1,0 +1,15 @@
+---
+description: Coolify deployment workflow conventions (GitHub webhook → auto build/deploy).
+alwaysApply: false
+---
+
+# Coolify module (20-coolify)
+
+## Workflow padrão
+- Fonte de verdade: GitHub.
+- Push no branch configurado dispara build/deploy no Coolify.
+- Preferir agrupar mudanças relacionadas para evitar churn de deploy.
+
+## Antes de causar deploy
+- Pedir aprovação antes de `commit/push`.
+- Documentar variáveis de ambiente e como observar logs/health.

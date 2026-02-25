@@ -1,0 +1,17 @@
+---
+description: Node.js + Express backend conventions and operational guardrails.
+alwaysApply: false
+---
+
+# Node/Express module (10-node-express)
+
+## Discovery (read-only)
+- Ler `backend/package.json` e scripts.
+- Identificar estrutura: routes/controllers/services/middleware.
+
+## API-first
+- Definir contrato de endpoint (request/response) antes de mexer no frontend quando envolver backend.
+
+## Segurança
+- Sem segredos em código.
+- Pedir aprovação antes de instalar deps, rodar migrations ou subir stack.
