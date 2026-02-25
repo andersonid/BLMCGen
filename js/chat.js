@@ -105,16 +105,29 @@ class ChatPanel {
         });
     }
 
+    extractCanvasFromText(text) {
+        const re = /```(?:canvas|bmc|lmc)?\s*\n([\s\S]*?)```/g;
+        let last = null;
+        let match;
+        while ((match = re.exec(text)) !== null) {
+            const md = match[1].trim();
+            if (/^(bmc|lmc)\b/.test(md)) last = md;
+        }
+        return last;
+    }
+
     renderMarkdown(text) {
         let html = text
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // Code blocks (canvas or generic)
         html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
-            const cls = lang === 'canvas' ? 'chat-canvas-block' : 'chat-code-block';
-            return `<pre class="${cls}"><code>${code.trim()}</code></pre>`;
+            const trimmed = code.trim();
+            const isCanvas = lang === 'canvas' || lang === 'bmc' || lang === 'lmc'
+                || /^(bmc|lmc)\b/.test(trimmed);
+            const cls = isCanvas ? 'chat-canvas-block' : 'chat-code-block';
+            return `<pre class="${cls}"><code>${trimmed}</code></pre>`;
         });
 
         html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -141,6 +154,7 @@ class ChatPanel {
         const bubble = this.addMessage('assistant', '');
         bubble.innerHTML = '<span class="chat-typing">Pensando...</span>';
         let streamedContent = '';
+        let gotCanvasUpdate = false;
 
         await this.llmClient.sendMessage(text, {
             canvasId: this.canvasId,
@@ -150,11 +164,20 @@ class ChatPanel {
                 this.scrollToBottom();
             },
             onCanvasUpdate: (data) => {
+                gotCanvasUpdate = true;
                 if (this.onCanvasUpdate) this.onCanvasUpdate(data);
             },
             onDone: () => {
                 bubble.innerHTML = this.renderMarkdown(streamedContent);
                 this.scrollToBottom();
+
+                // Fallback: if backend didn't send canvas_update, try extracting from text
+                if (!gotCanvasUpdate && this.onCanvasUpdate) {
+                    const md = this.extractCanvasFromText(streamedContent);
+                    if (md) {
+                        this.onCanvasUpdate({ markdown: md, valid: true });
+                    }
+                }
             },
             onError: (err) => {
                 bubble.innerHTML = `<span class="chat-error">Erro: ${err.message}</span>`;
