@@ -13,7 +13,7 @@ router.post('/',
     body('history').optional().isArray({ max: 40 }),
     body('history.*.role').optional().isIn(['user', 'assistant']),
     body('history.*.content').optional().isString(),
-    body('canvasId').optional().isString()
+    body('canvasId').optional({ values: 'null' }).isString()
   ],
   async (req, res) => {
     const errors = validationResult(req);

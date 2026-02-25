@@ -59,7 +59,7 @@ export function useChat({ onCanvasUpdate }: UseChatOptions = {}) {
           {
             message: text,
             history: historyRef.current.slice(0, -1),
-            canvasId: canvasIdRef.current,
+            ...(canvasIdRef.current ? { canvasId: canvasIdRef.current } : {}),
           },
           {
             onDelta: (_chunk, full) => {
