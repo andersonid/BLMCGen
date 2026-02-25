@@ -6,6 +6,9 @@ BEGIN;
 -- 1. Add is_active column to users
 ALTER TABLE users ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 
+-- 1b. Widen token_hash to TEXT (JWT with roles exceeds 255 chars)
+ALTER TABLE user_sessions ALTER COLUMN token_hash TYPE TEXT;
+
 -- 2. Roles table
 CREATE TABLE IF NOT EXISTS roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
