@@ -6,7 +6,7 @@
 - Ambiente (dev/prod):
 
 ## Decisões
-- 
+- (registrar decisões técnicas ou de produto aqui)
 
 ## Próximos passos
-- 
+- (próximas tarefas ou follow-ups) 

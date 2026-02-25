@@ -7,10 +7,10 @@ alwaysApply: true
 
 ## Identidade
 - Nome: BLMCGen (BMC/LMC Markdown Generator)
-- Repo: (preencher)
-- Frontend: estático (HTML/CSS/JS) — pode abrir `index.html` direto
-- Backend: Node.js + Express (em `backend/`)
-- DB/Infra: Docker Compose (PostgreSQL) + Nginx; deploy pode ser via Coolify
+- Repo: https://github.com/andersonid/BLMCGen.git (package.json)
+- Frontend: estático (HTML/CSS/JS) — `index.html` + `js/app-simple.js`; abrir `index.html` direto
+- Backend: Node.js + Express em `backend/` (auth JWT, CRUD canvas, PostgreSQL)
+- DB/Infra: Docker Compose (PostgreSQL) + Nginx; deploy via Coolify ou ver README-DEPLOY
 
 ## Como rodar (alto nível)
 - Frontend (rápido): abrir `index.html` no navegador
@@ -20,7 +20,7 @@ alwaysApply: true
   - `npm run backend:dev`
 
 ## Deploy
-- Ver `README-DEPLOY.md`, `docker-compose.yml`, `cloud-deployment.md`.
+- Ver `README-DEPLOY.md`, `docker-compose.yml`.
 - Health (backend): `GET /health` (ver README-DEPLOY).
 
 ## Convenções

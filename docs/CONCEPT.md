@@ -4,8 +4,8 @@
 Ferramenta web para criar Business Model Canvas (BMC) e Lean Model Canvas (LMC) usando uma sintaxe inspirada em markdown, com preview em tempo real.
 
 ## Modos de uso
-- Uso simples: abrir `index.html` no navegador (sem servidor).
-- Modo com backend: usar API (auth/CRUD de canvas) e stack via Docker Compose.
+- **Simples**: abrir `index.html` no navegador (sem servidor); dados em localStorage.
+- **Com backend**: Docker Compose sobe Nginx + API + PostgreSQL; API oferece auth (JWT), CRUD de canvas, perfil e sessões.
 
 ## Objetivos
 - Experiência rápida e leve no frontend.

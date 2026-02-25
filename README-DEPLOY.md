@@ -17,6 +17,10 @@ docker-compose down
 
 ## Deploy em Produção
 
+### Deploy em nuvem (resumo)
+- **Coolify**: conectar repo GitHub, configurar env vars, deploy automático via webhook.
+- **DigitalOcean / AWS EC2 / GCP / VPS**: Ubuntu 22.04, Docker + Docker Compose, Nginx + Certbot para SSL. Clonar repo, configurar `.env` (ou `.env.production`), subir com `docker-compose`. Detalhes de cada provedor (custos, RDS/Cloud SQL, backup) ficam em documentação externa ou histórico do repo.
+
 ### Coolify
 1. Conectar repositório GitHub
 2. Configurar variáveis de ambiente

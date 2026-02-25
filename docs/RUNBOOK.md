@@ -26,10 +26,11 @@ npm run backend:dev
 
 ## Deploy
 - Coolify: conectar repo, configurar env vars e deixar webhook disparar deploy.
-- Ver: `README-DEPLOY.md`, `cloud-deployment.md`.
+- Ver: `README-DEPLOY.md`, `docker-compose.yml`.
 
 ## Variáveis de ambiente
-- Ver `.env`, `.env.production.example` e `backend/.env.example`.
+- Raiz: `.env`, `.env.production.example`
+- Backend: `backend/.env` (copiar de `backend/.env.example`)
 
 ## Health
 - Backend: `GET /health` (porta conforme deploy; ver README-DEPLOY).
