@@ -13,3 +13,92 @@ alwaysApply: false
 ## Antes de causar deploy
 - Pedir aprovação antes de `commit/push`.
 - Documentar variáveis de ambiente e como observar logs/health.
+
+## CLI — Coolify CLI v1.4.0
+
+A CLI já está instalada localmente em `/usr/local/sbin/coolify`.
+NÃO precisa instalar nada, NÃO precisa rodar `--help` — já está tudo documentado aqui.
+
+### Contexto ativo
+- Default: `dash` → `https://dash.methodik.cc`
+- Outros: `cloud` (app.coolify.io), `localhost` (localhost:8000)
+
+### Resource do BMCMarkdown
+- UUID: `jkc0s8wgwswc8kswg08kcgwo`
+- Nome: `bmc`
+- Tipo: docker-compose application
+- Servidor: `nobre.ninja`
+
+### Flags globais (valem pra qualquer comando)
+- `--format table|json|pretty` (default: table)
+- `--context <nome>` (usar contexto específico)
+- `--debug` (modo verboso)
+
+### Comandos mais usados
+
+#### Listar resources (apps, services, databases)
+```
+coolify resource list
+```
+
+#### Ver detalhes do app BMC
+```
+coolify app get jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Listar deploys do app BMC
+```
+coolify app deployments list jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Ver logs de um deploy específico (pelo UUID do deploy)
+```
+coolify app deployments logs jkc0s8wgwswc8kswg08kcgwo <deployment_uuid>
+```
+
+#### Ver logs em tempo real do app
+```
+coolify app logs jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Disparar deploy manualmente
+```
+coolify deploy uuid jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Reiniciar app
+```
+coolify app restart jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Parar / Iniciar app
+```
+coolify app stop jkc0s8wgwswc8kswg08kcgwo
+coolify app start jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Listar variáveis de ambiente do app
+```
+coolify app env list jkc0s8wgwswc8kswg08kcgwo
+```
+
+#### Gerenciar contextos
+```
+coolify context list
+coolify context use <nome>
+coolify context verify
+```
+
+### Referência completa de subcomandos
+
+| Comando | Subcomandos |
+|---|---|
+| `coolify app` | `list`, `get`, `create`, `update`, `delete`, `deployments`, `env`, `logs`, `restart`, `start`, `stop` |
+| `coolify app deployments` | `list`, `logs` |
+| `coolify app env` | `list` (+ create/update/delete) |
+| `coolify deploy` | `list`, `get`, `uuid`, `name`, `batch`, `cancel` |
+| `coolify resource` | `list` |
+| `coolify context` | `list`, `add`, `delete`, `get`, `set-default`, `set-token`, `update`, `use`, `verify`, `version` |
+| `coolify server` | `list`, `get`, `add`, `remove`, `validate`, `domains` |
+| `coolify service` | (gerenciar services) |
+| `coolify database` | (gerenciar databases standalone) |
