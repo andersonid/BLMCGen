@@ -4,9 +4,9 @@
   "description": "Business & Lean Model Canvas Generator with AI Agent, MCP Server, and Backend API",
   "main": "index.html",
   "scripts": {
-    "start": "python3 -m http.server 8000",
-    "dev": "python3 -m http.server 8000",
-    "build": "echo 'No build step required for static frontend'",
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "frontend:install": "cd frontend && npm install",
     "backend:install": "cd backend && npm install",
     "backend:dev": "cd backend && npm run dev",
     "backend:start": "cd backend && npm start"
