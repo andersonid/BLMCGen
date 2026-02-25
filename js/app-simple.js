@@ -494,7 +494,7 @@ class BMCApp {
             
             if (!token) {
                 console.log('❌ No token found, redirecting to login');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
                 return;
             }
 
@@ -536,13 +536,13 @@ class BMCApp {
                 console.log('❌ Token invalid, redirecting to login');
                 localStorage.removeItem('bmcgen_auth_token');
                 localStorage.removeItem('bmcgen_user');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }
         } catch (error) {
             console.error('❌ Authentication check failed:', error);
             localStorage.removeItem('bmcgen_auth_token');
             localStorage.removeItem('bmcgen_user');
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }
     }
 
@@ -564,7 +564,7 @@ class BMCApp {
     logout() {
         localStorage.removeItem('bmcgen_auth_token');
         localStorage.removeItem('bmcgen_user');
-        window.location.href = 'login.html';
+        window.location.href = '/login';
     }
 
     initializeExamples() {

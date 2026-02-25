@@ -288,7 +288,7 @@ router.get('/verify/:token', async (req, res) => {
 
     // Redirect to login page with success message
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
-    res.redirect(`${frontendUrl}/login.html?verified=true&message=Email verificado com sucesso! Agora você pode fazer login.`);
+    res.redirect(`${frontendUrl}/login?verified=true&message=Email verificado com sucesso! Agora você pode fazer login.`);
 
   } catch (error) {
     console.error('Email verification error:', error);

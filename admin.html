@@ -249,7 +249,7 @@
     <h1>BLMCGen Admin</h1>
     <div class="topbar-actions">
         <span id="currentUser"></span>
-        <a href="index.html">App</a>
+        <a href="/">App</a>
         <button onclick="logout()">Sair</button>
     </div>
 </div>
@@ -408,11 +408,11 @@ async function checkAdmin() {
         await api('/stats');
     } catch {
         toast('Sem permissao de admin', 'error');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+        setTimeout(() => { window.location.href = '/'; }, 1500);
     }
 }
 
-function goLogin() { window.location.href = 'login.html'; }
+function goLogin() { window.location.href = '/login'; }
 function logout() {
     localStorage.removeItem('bmcgen_auth_token');
     localStorage.removeItem('bmcgen_user');

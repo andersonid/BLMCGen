@@ -254,7 +254,7 @@
                     
                     if (response.ok) {
                         // Usuário já autenticado, redirecionar
-                        window.location.href = 'index.html';
+                        window.location.href = '/';
                     } else {
                         // Token inválido, remover
                         localStorage.removeItem('bmcgen_auth_token');
@@ -317,7 +317,7 @@
                         }
                         localStorage.setItem('bmcgen_auth_token', token);
                         localStorage.setItem('bmcgen_user', JSON.stringify(user));
-                        window.location.href = 'index.html';
+                        window.location.href = '/';
                     } else {
                         this.showError(data.message || 'Erro ao fazer login');
                     }
