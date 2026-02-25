@@ -75,16 +75,13 @@ SMTP_FROM_EMAIL=noreply@seudominio.com
 Todos os serviços têm health checks configurados:
 - Backend: `/health`
 - Database: `pg_isready`
-- Redis: `redis-cli ping`
 
 ## Volumes
 
 - `postgres_data`: Dados do PostgreSQL
-- `redis_data`: Dados do Redis
 
 ## Portas
 
 - `80`: Frontend (Nginx)
 - `3001`: Backend API
 - `5432`: PostgreSQL (apenas interno)
-- `6379`: Redis (apenas interno)

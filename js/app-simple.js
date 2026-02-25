@@ -36,8 +36,30 @@ class BMCApp {
         
         // API configuration
         this.apiBaseUrl = '/api';
+        this.isAuthenticated = false;
+        this.authToken = null;
+        this.user = null;
         
         this.init();
+    }
+
+    detectCanvasType(code) {
+        if (!code || typeof code !== 'string') return 'bmc';
+        if (code.includes('problem:') || code.includes('solution:') || code.includes('unique-value-proposition:')) {
+            return 'lmc';
+        }
+        if (code.includes('value-propositions:') || code.includes('customer-relationships:')) {
+            return 'bmc';
+        }
+        return 'bmc';
+    }
+
+    getAuthHeaders() {
+        const headers = { 'Content-Type': 'application/json' };
+        if (this.authToken) {
+            headers['Authorization'] = `Bearer ${this.authToken}`;
+        }
+        return headers;
     }
 
     // Funções para gerenciamento de múltiplas abas de código
@@ -48,7 +70,8 @@ class BMCApp {
                     id,
                     name: tab.name,
                     content: tab.content,
-                    isActive: tab.isActive
+                    isActive: tab.isActive,
+                    cloudId: tab.cloudId || null
                 })),
                 activeTabId: this.activeCodeTabId,
                 nextTabId: this.nextTabId
@@ -70,7 +93,8 @@ class BMCApp {
                     this.codeTabs.set(tab.id, {
                         name: tab.name,
                         content: tab.content,
-                        isActive: tab.isActive
+                        isActive: tab.isActive,
+                        cloudId: tab.cloudId || null
                     });
                 });
                 
@@ -85,6 +109,85 @@ class BMCApp {
         return false;
     }
 
+    async saveCanvasToCloud(tabId) {
+        if (!this.isAuthenticated || !this.authToken) return;
+        const tab = this.codeTabs.get(tabId);
+        if (!tab) return;
+        const title = (tab.name || 'Sem título').substring(0, 255);
+        const content = tab.content || '';
+        const canvasType = this.detectCanvasType(content);
+        const base = (this.apiBaseUrl || '/api').replace(/\/+$/, '');
+        try {
+            if (tab.cloudId) {
+                const res = await fetch(`${base}/canvas/${tab.cloudId}`, {
+                    method: 'PUT',
+                    headers: this.getAuthHeaders(),
+                    body: JSON.stringify({ title, content })
+                });
+                if (res.ok) {
+                    this.updateStatus('💾 Canvas salvo na nuvem');
+                }
+            } else {
+                const res = await fetch(`${base}/canvas`, {
+                    method: 'POST',
+                    headers: this.getAuthHeaders(),
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        canvasType,
+                        isPublic: false
+                    })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.data && data.data.canvas && data.data.canvas.id) {
+                        tab.cloudId = data.data.canvas.id;
+                        this.saveCodeTabs();
+                        this.updateStatus('💾 Canvas salvo na nuvem');
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to save canvas to cloud:', e);
+        }
+    }
+
+    async loadCanvasFromCloud() {
+        if (!this.isAuthenticated || !this.authToken) return;
+        const base = (this.apiBaseUrl || '/api').replace(/\/+$/, '');
+        try {
+            const listRes = await fetch(`${base}/canvas?limit=30`, {
+                headers: this.getAuthHeaders()
+            });
+            if (!listRes.ok) return;
+            const listData = await listRes.json();
+            const canvasList = listData.data && listData.data.canvas ? listData.data.canvas : [];
+            const existingCloudIds = new Set(
+                Array.from(this.codeTabs.values()).map(t => t.cloudId).filter(Boolean)
+            );
+            for (const row of canvasList) {
+                if (existingCloudIds.has(row.id)) continue;
+                const detailRes = await fetch(`${base}/canvas/${row.id}`, {
+                    headers: this.getAuthHeaders()
+                });
+                if (!detailRes.ok) continue;
+                const detailData = await detailRes.json();
+                const canvas = detailData.data && detailData.data.canvas ? detailData.data.canvas : null;
+                if (!canvas || !canvas.content) continue;
+                const tabId = this.createCodeTab(
+                    canvas.title || `Canvas ${row.canvas_type}`,
+                    canvas.content,
+                    this.codeTabs.size === 1
+                );
+                const tab = this.codeTabs.get(tabId);
+                if (tab) tab.cloudId = canvas.id;
+                this.saveCodeTabs();
+            }
+        } catch (e) {
+            console.warn('Failed to load canvas from cloud:', e);
+        }
+    }
+
     createCodeTab(name = `Código ${this.nextTabId}`, content = '', makeActive = true) {
         const tabId = this.nextTabId++;
         
@@ -97,7 +200,8 @@ class BMCApp {
         this.codeTabs.set(tabId, {
             name,
             content,
-            isActive: makeActive
+            isActive: makeActive,
+            cloudId: null
         });
         
         this.saveCodeTabs();
@@ -331,6 +435,9 @@ class BMCApp {
                 tab.name = name;
                 this.saveCodeTabs();
                 this.updateCodeTabsUI();
+                if (this.isAuthenticated) {
+                    this.saveCanvasToCloud(this.currentTabId).catch(() => {});
+                }
             }
         } else {
             this.createCodeTab(name);
@@ -350,7 +457,12 @@ class BMCApp {
             // Carregar abas salvas
             this.loadCodeTabs();
             
-            // Se não há abas, criar uma padrão
+            // Se autenticado e sem abas locais, carregar canvas da nuvem
+            if (this.isAuthenticated && this.codeTabs.size === 0) {
+                await this.loadCanvasFromCloud();
+            }
+            
+            // Se ainda não há abas, criar uma padrão
             if (this.codeTabs.size === 0) {
                 this.createCodeTab('Código 1', this.loadExample());
             }
@@ -1014,6 +1126,10 @@ cost-structure:
                 if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
                     this.codeTabs.get(this.activeCodeTabId).content = content;
                     this.saveCodeTabs();
+                    // Persistir no banco do usuário se autenticado
+                    if (this.isAuthenticated) {
+                        this.saveCanvasToCloud(this.activeCodeTabId).catch(() => {});
+                    }
                 }
                 
                 // Salvar no localStorage (compatibilidade)

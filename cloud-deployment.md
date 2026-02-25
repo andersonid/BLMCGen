@@ -71,17 +71,13 @@ sudo certbot --nginx -d yourdomain.com
    - Configurar Security Group
    - Atualizar DATABASE_URL no .env.production
 
-3. **Configurar ElastiCache Redis** (opcional):
-   - Criar cluster Redis
-   - Atualizar REDIS_URL no .env.production
-
-4. **Deploy**:
+3. **Deploy**:
 ```bash
 # Mesmo processo do DigitalOcean
 git clone https://github.com/andersonid/BLMCGen.git
 cd BMCMarkdown
 cp .env.production.example .env.production
-# Configurar variáveis do RDS e ElastiCache
+# Configurar variáveis do RDS
 ./deploy.sh
 ```
 
@@ -139,8 +135,6 @@ JWT_SECRET=chave-jwt-super-secreta-min-32-chars
 FRONTEND_URL=https://yourdomain.com
 NODE_ENV=production
 
-# Redis (opcional)
-REDIS_URL=redis://host:6379
 ```
 
 ### Configuração do Nginx para SSL
