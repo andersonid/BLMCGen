@@ -110,7 +110,7 @@ router.post('/login', [
 
     // Find user
     const userResult = await query(
-      'SELECT id, email, name, password_hash, is_verified FROM users WHERE email = $1',
+      'SELECT id, email, name, password_hash, is_verified, is_active FROM users WHERE email = $1',
       [email]
     );
 
@@ -132,6 +132,14 @@ router.post('/login', [
       });
     }
 
+    // Check if account is active
+    if (user.is_active === false) {
+      return res.status(403).json({
+        success: false,
+        error: 'Conta desativada. Entre em contato com um administrador.'
+      });
+    }
+
     // Check if user is verified
     if (!user.is_verified) {
       return res.status(403).json({
@@ -140,9 +148,16 @@ router.post('/login', [
       });
     }
 
-    // Generate JWT token
+    // Load user roles for JWT payload
+    const rolesResult = await query(
+      `SELECT r.name FROM user_roles ur JOIN roles r ON r.id = ur.role_id WHERE ur.user_id = $1`,
+      [user.id]
+    );
+    const roles = rolesResult.rows.map(r => r.name);
+
+    // Generate JWT token (includes roles for fast client-side checks)
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { userId: user.id, email: user.email, roles },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -166,7 +181,8 @@ router.post('/login', [
           id: user.id,
           email: user.email,
           name: user.name,
-          isVerified: user.is_verified
+          isVerified: user.is_verified,
+          roles
         },
         token
       }

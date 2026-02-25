@@ -7,6 +7,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const canvasRoutes = require('./routes/canvas');
 const userRoutes = require('./routes/user');
+const adminRoutes = require('./routes/admin');
 const { connectDB } = require('./config/database');
 const { errorHandler } = require('./middleware/errorHandler');
 
@@ -47,6 +48,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/canvas', canvasRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
