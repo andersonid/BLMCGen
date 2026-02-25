@@ -70,9 +70,21 @@ SMTP_FROM_EMAIL=noreply@seudominio.com
 
 ## Acesso
 
-- **Frontend**: http://localhost
+- **Frontend**: http://localhost (ou `https://bmc.nobre.ninja` em produção)
+- **Login**: http://localhost/login
+- **Admin**: http://localhost/admin (requer role `admin`)
 - **API**: http://localhost:3001
 - **Health**: http://localhost:3001/health
+
+## RBAC
+
+Ao fazer deploy pela primeira vez ou ao atualizar um banco existente, aplicar a migration:
+
+```bash
+cat backend/migrations/001_rbac.sql | docker exec -i <container-db> psql -U bmcmarkdown -d bmcmarkdown
+```
+
+Usuário admin padrão: `admin@bmcgen.com` / `admin123`.
 
 ## Health Checks
 

@@ -8,9 +8,24 @@ alwaysApply: true
 ## Identidade
 - Nome: BLMCGen (BMC/LMC Markdown Generator)
 - Repo: https://github.com/andersonid/BLMCGen.git (package.json)
-- Frontend: estático (HTML/CSS/JS) — `index.html` + `js/app-simple.js`; abrir `index.html` direto
-- Backend: Node.js + Express em `backend/` (auth JWT, CRUD canvas, PostgreSQL)
-- DB/Infra: Docker Compose (PostgreSQL) + Nginx; deploy via Coolify ou ver README-DEPLOY
+- Produção: https://bmc.nobre.ninja (Coolify)
+- Frontend: estático (HTML/CSS/JS) — `index.html` + `js/app-simple.js`
+- Backend: Node.js + Express em `backend/` (auth JWT, CRUD canvas, RBAC, PostgreSQL)
+- DB/Infra: Docker Compose (PostgreSQL) + Nginx (proxy reverso + URLs limpas); deploy via Coolify
+
+## URLs (produção)
+- `/` — app principal
+- `/login` — login/registro
+- `/admin` — painel admin (requer role admin)
+- `/api/*` — API (proxy Nginx → backend:3001)
+
+## RBAC
+- Modelo: roles + permissions granulares (tabelas: `roles`, `permissions`, `role_permissions`, `user_roles`)
+- Permissions no formato `resource:action` (ex: `user:list`, `canvas:delete_any`, `admin:dashboard`)
+- Middlewares: `requireRole()` e `requirePermission()` em `backend/middleware/authorize.js`
+- `authenticateToken` carrega roles/permissions do banco + checa `is_active`
+- Admin padrão: `admin@bmcgen.com` / `admin123`
+- Migration: `backend/migrations/001_rbac.sql`
 
 ## Como rodar (alto nível)
 - Frontend (rápido): abrir `index.html` no navegador
@@ -18,6 +33,7 @@ alwaysApply: true
 - Backend:
   - `npm run backend:install`
   - `npm run backend:dev`
+- Stack completa: `docker-compose up -d`
 
 ## Deploy
 - Ver `README-DEPLOY.md`, `docker-compose.yml`.

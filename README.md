@@ -1,4 +1,4 @@
-# BLMCGen v2.1.2
+# BLMCGen v2.2.0
 
 ## 🇧🇷 Português
 
@@ -10,15 +10,15 @@ Uma ferramenta web para criar Business Model Canvas (BMC) e Lean Model Canvas (L
 
 *   **Suporte Duplo**: Criação de Business Model Canvas (BMC) e Lean Model Canvas (LMC).
 *   **Pré-visualização em Tempo Real**: Renderização do canvas enquanto você digita.
-*   **Interface com Abas**:
-    *   Gerencie múltiplos projetos em abas.
-    *   O conteúdo é salvo automaticamente no localStorage.
-*   **Opções de Exportação**:
-    *   Exportação para PDF.
-    *   Exportação para PNG/JPEG.
-*   **Suporte a Múltiplos Idiomas**: Disponível em Português, Inglês e Espanhol.
-*   **Design Responsivo**: Funciona em dispositivos móveis e desktops.
-*   **Exemplos Integrados**: Inclui exemplos para BMC (Netflix) e LMC (Uber).
+*   **Interface com Abas**: Gerencie múltiplos projetos; conteúdo salvo automaticamente.
+*   **Exportação**: PDF, PNG e JPEG.
+*   **Autenticação**: Registro com verificação por email, login JWT, persistência de canvas no banco.
+*   **RBAC Completo**: Sistema de roles e permissions granulares (admin, user). Painel admin em `/admin`.
+*   **Painel Admin** (`/admin`): Dashboard com estatísticas, gestão de usuários (editar, ativar/desativar, excluir), gerenciamento de roles e visualização de todos os canvas.
+*   **URLs Limpas**: Rotas sem extensão `.html` (`/login`, `/admin`).
+*   **Suporte a Múltiplos Idiomas**: Português, Inglês e Espanhol.
+*   **Design Responsivo**: Mobile e desktop.
+*   **Exemplos Integrados**: BMC (Netflix) e LMC (Uber).
 
 ### Como Usar
 
@@ -27,8 +27,12 @@ Uma ferramenta web para criar Business Model Canvas (BMC) e Lean Model Canvas (L
     git clone https://github.com/andersonid/BLMCGen.git
     cd BLMCGen
     ```
-2.  **Abra no navegador**:
-    *   Abra o arquivo `index.html` diretamente no seu navegador. Não é necessário um servidor web.
+2.  **Modo simples** (sem backend): Abra `index.html` diretamente no navegador.
+3.  **Stack completa** (com backend + banco):
+    ```bash
+    docker-compose up -d
+    ```
+    Acesse `http://localhost` (frontend), `http://localhost/admin` (painel admin).
 
 ---
 
@@ -42,15 +46,15 @@ A web tool for creating Business Model Canvas (BMC) and Lean Model Canvas (LMC) 
 
 *   **Dual Support**: Create both Business Model Canvas (BMC) and Lean Model Canvas (LMC).
 *   **Real-time Preview**: Renders the canvas as you type.
-*   **Tabbed Interface**:
-    *   Manage multiple projects in tabs.
-    *   Content is automatically saved to localStorage.
-*   **Export Options**:
-    *   Export to PDF.
-    *   Export to PNG/JPEG.
-*   **Multi-language Support**: Available in Portuguese, English, and Spanish.
-*   **Responsive Design**: Works on mobile and desktop devices.
-*   **Integrated Examples**: Includes examples for BMC (Netflix) and LMC (Uber).
+*   **Tabbed Interface**: Manage multiple projects; content auto-saved.
+*   **Export Options**: PDF, PNG and JPEG.
+*   **Authentication**: Email-verified registration, JWT login, canvas persisted to database.
+*   **Full RBAC**: Granular roles and permissions system (admin, user). Admin panel at `/admin`.
+*   **Admin Panel** (`/admin`): Dashboard with stats, user management (edit, activate/deactivate, delete), role management, and all-canvas view.
+*   **Clean URLs**: Extension-free routes (`/login`, `/admin`).
+*   **Multi-language Support**: Portuguese, English, and Spanish.
+*   **Responsive Design**: Mobile and desktop.
+*   **Integrated Examples**: BMC (Netflix) and LMC (Uber).
 
 ### How to Use
 
@@ -59,8 +63,12 @@ A web tool for creating Business Model Canvas (BMC) and Lean Model Canvas (LMC) 
     git clone https://github.com/andersonid/BLMCGen.git
     cd BLMCGen
     ```
-2.  **Open in browser**:
-    *   Open the `index.html` file directly in your browser. No web server is required.
+2.  **Simple mode** (no backend): Open `index.html` directly in your browser.
+3.  **Full stack** (with backend + database):
+    ```bash
+    docker-compose up -d
+    ```
+    Access `http://localhost` (frontend), `http://localhost/admin` (admin panel).
 
 ---
 
@@ -74,15 +82,15 @@ Una herramienta web para crear Business Model Canvas (BMC) y Lean Model Canvas (
 
 *   **Soporte Dual**: Creación de Business Model Canvas (BMC) y Lean Model Canvas (LMC).
 *   **Vista Previa en Tiempo Real**: Renderización del lienzo mientras escribes.
-*   **Interfaz con Pestañas**:
-    *   Gestiona múltiples proyectos en pestañas.
-    *   El contenido se guarda automáticamente en localStorage.
-*   **Opciones de Exportación**:
-    *   Exportación a PDF.
-    *   Exportación a PNG/JPEG.
-*   **Soporte Multilingüe**: Disponible em portugués, inglés y español.
-*   **Diseño Adaptable**: Funciona em dispositivos móviles y de escritorio.
-*   **Ejemplos Integrados**: Incluye ejemplos para BMC (Netflix) y LMC (Uber).
+*   **Interfaz con Pestañas**: Gestiona múltiples proyectos; guardado automático.
+*   **Exportación**: PDF, PNG y JPEG.
+*   **Autenticación**: Registro con verificación por email, login JWT, canvas persistidos en base de datos.
+*   **RBAC Completo**: Sistema de roles y permisos granulares (admin, user). Panel admin en `/admin`.
+*   **Panel Admin** (`/admin`): Dashboard con estadísticas, gestión de usuarios (editar, activar/desactivar, eliminar), gestión de roles y vista de todos los canvas.
+*   **URLs Limpias**: Rutas sin extensión `.html` (`/login`, `/admin`).
+*   **Soporte Multilingüe**: Portugués, inglés y español.
+*   **Diseño Adaptable**: Dispositivos móviles y escritorio.
+*   **Ejemplos Integrados**: BMC (Netflix) y LMC (Uber).
 
 ### Cómo Usar
 
@@ -91,8 +99,12 @@ Una herramienta web para crear Business Model Canvas (BMC) y Lean Model Canvas (
     git clone https://github.com/andersonid/BLMCGen.git
     cd BLMCGen
     ```
-2.  **Abrir en el navegador**:
-    *   Abre el archivo `index.html` directamente en tu navegador. No se requiere un servidor web.
+2.  **Modo simple** (sin backend): Abre `index.html` directamente en tu navegador.
+3.  **Stack completa** (con backend + base de datos):
+    ```bash
+    docker-compose up -d
+    ```
+    Accede a `http://localhost` (frontend), `http://localhost/admin` (panel admin).
 
 ---
 ### Sintaxe / Syntax / Sintaxis
@@ -149,12 +161,12 @@ revenue-streams:
   - Revenue stream 1
 ```
 
-### Tecnologias Utilizadas / Technologies Used / Tecnologías Utilizadas
+### Tecnologias / Technologies / Tecnologías
 
-*   HTML5
-*   CSS3
-*   JavaScript (ES6+)
-*   Monaco Editor
-*   jsPDF
+**Frontend**: HTML5, CSS3, JavaScript (ES6+), Monaco Editor, jsPDF
+**Backend**: Node.js, Express, JWT, bcrypt, Nodemailer
+**Banco**: PostgreSQL
+**Infra**: Docker Compose, Nginx (proxy reverso + URLs limpas)
+**Deploy**: Coolify (GitHub webhook → auto build/deploy)
 
 ---
