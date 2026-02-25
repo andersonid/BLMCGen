@@ -38,7 +38,7 @@ router.get('/profile', authenticateToken, async (req, res) => {
 // Update user profile
 router.put('/profile', authenticateToken, [
   body('name').optional().trim().isLength({ min: 2, max: 100 }),
-  body('email').optional().isEmail().normalizeEmail()
+  body('email').optional().isEmail()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);

@@ -173,7 +173,7 @@ router.get('/users/:id', requirePermission('user:view'), [
 router.put('/users/:id', requirePermission('user:edit'), [
   param('id').isUUID(),
   body('name').optional().trim().isLength({ min: 2, max: 100 }),
-  body('email').optional().isEmail().normalizeEmail()
+  body('email').optional().isEmail()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
