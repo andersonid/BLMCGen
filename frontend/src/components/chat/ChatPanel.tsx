@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  memo,
+  type KeyboardEvent,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Square, Sparkles } from "lucide-react";
+import { Send, Square, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import type { ChatMessage } from "@/hooks/use-chat";
 import { cn } from "@/lib/utils";
 
-interface Props {
-  messages: ChatMessage[];
-  isStreaming: boolean;
-  onSend: (text: string) => void;
-  onAbort: () => void;
-}
+const USER_MSG_COLLAPSED_LEN = 800;
 
 function renderMarkdown(text: string): string {
   let html = text
@@ -38,6 +40,71 @@ function renderMarkdown(text: string): string {
   return html;
 }
 
+const MessageBubble = memo(function MessageBubble({
+  msg,
+}: {
+  msg: ChatMessage;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong =
+    msg.role === "user" && msg.content.length > USER_MSG_COLLAPSED_LEN;
+
+  const displayContent =
+    isLong && !expanded
+      ? msg.content.slice(0, USER_MSG_COLLAPSED_LEN) + "…"
+      : msg.content;
+
+  return (
+    <div
+      className={cn(
+        "flex",
+        msg.role === "user" ? "justify-end" : "justify-start",
+      )}
+    >
+      <div
+        className={cn(
+          "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm",
+          msg.role === "user"
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted",
+        )}
+      >
+        {msg.role === "assistant" ? (
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none [&_.canvas-block]:rounded [&_.canvas-block]:bg-background/50 [&_.canvas-block]:p-2 [&_.canvas-block]:text-xs [&_.code-block]:rounded [&_.code-block]:bg-background/50 [&_.code-block]:p-2 [&_.code-block]:text-xs [&_code]:rounded [&_code]:bg-background/50 [&_code]:px-1 [&_code]:text-xs [&_li]:ml-4 [&_ul]:list-disc"
+            dangerouslySetInnerHTML={{
+              __html: renderMarkdown(msg.content || "Pensando..."),
+            }}
+          />
+        ) : (
+          <>
+            <span className="whitespace-pre-wrap break-words">
+              {displayContent}
+            </span>
+            {isLong && (
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="mt-1 flex items-center gap-1 text-xs opacity-70 hover:opacity-100"
+              >
+                {expanded ? (
+                  <>
+                    <ChevronUp className="h-3 w-3" /> Recolher
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-3 w-3" /> Mostrar tudo (
+                    {(msg.content.length / 1000).toFixed(1)}k caracteres)
+                  </>
+                )}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+});
+
 const QUICK_ACTIONS = [
   { label: "BMC", prompt: "Quero criar um Business Model Canvas. Me ajude!" },
   {
@@ -50,45 +117,105 @@ const QUICK_ACTIONS = [
   },
 ];
 
+function ChatInput({
+  isStreaming,
+  onSend,
+  onAbort,
+}: {
+  isStreaming: boolean;
+  onSend: (text: string) => void;
+  onAbort: () => void;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [hasText, setHasText] = useState(false);
+  const resizeRaf = useRef<number>(0);
+
+  const resize = useCallback(() => {
+    cancelAnimationFrame(resizeRaf.current);
+    resizeRaf.current = requestAnimationFrame(() => {
+      const ta = textareaRef.current;
+      if (!ta) return;
+      ta.style.height = "auto";
+      ta.style.height = Math.min(ta.scrollHeight, 200) + "px";
+    });
+  }, []);
+
+  const handleChange = useCallback(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    setHasText(ta.value.trim().length > 0);
+    resize();
+  }, [resize]);
+
+  const handleSend = useCallback(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const text = ta.value.trim();
+    if (!text || isStreaming) return;
+    onSend(text);
+    ta.value = "";
+    ta.style.height = "auto";
+    setHasText(false);
+  }, [isStreaming, onSend]);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend],
+  );
+
+  return (
+    <div className="border-t p-3">
+      <div className="flex items-end gap-2">
+        <textarea
+          ref={textareaRef}
+          className="flex-1 resize-none overflow-y-auto rounded-lg border bg-background px-3 py-2 text-sm outline-none ring-ring focus-visible:ring-2"
+          placeholder="Descreva seu negócio ou peça ajuda..."
+          rows={1}
+          style={{ maxHeight: 200 }}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+        />
+        {isStreaming ? (
+          <Button size="icon" variant="destructive" onClick={onAbort}>
+            <Square className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button size="icon" onClick={handleSend} disabled={!hasText}>
+            <Send className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <p className="mt-1 text-[10px] text-muted-foreground">
+        Shift+Enter para nova linha. Aceita textos longos.
+      </p>
+    </div>
+  );
+}
+
+interface Props {
+  messages: ChatMessage[];
+  isStreaming: boolean;
+  onSend: (text: string) => void;
+  onAbort: () => void;
+}
+
 export default function ChatPanel({
   messages,
   isStreaming,
   onSend,
   onAbort,
 }: Props) {
-  const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
-    }
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
-
-  function handleSend() {
-    const text = input.trim();
-    if (!text || isStreaming) return;
-    onSend(text);
-    setInput("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
-  }
-
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }
-
-  function handleInput() {
-    const ta = textareaRef.current;
-    if (ta) {
-      ta.style.height = "auto";
-      ta.style.height = Math.min(ta.scrollHeight, 120) + "px";
-    }
-  }
 
   const showWelcome = messages.length === 0;
 
@@ -101,9 +228,7 @@ export default function ChatPanel({
               <Sparkles className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">
-                Assistente BLMCGen
-              </h3>
+              <h3 className="text-lg font-semibold">Assistente BLMCGen</h3>
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                 Descreva seu negócio e eu crio um Business Model Canvas ou Lean
                 Model Canvas completo para você.
@@ -127,65 +252,16 @@ export default function ChatPanel({
 
         <div className="space-y-4">
           {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "flex",
-                msg.role === "user" ? "justify-end" : "justify-start",
-              )}
-            >
-              <div
-                className={cn(
-                  "max-w-[85%] rounded-2xl px-4 py-2.5 text-sm",
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted",
-                )}
-              >
-                {msg.role === "assistant" ? (
-                  <div
-                    className="prose prose-sm dark:prose-invert max-w-none [&_.canvas-block]:rounded [&_.canvas-block]:bg-background/50 [&_.canvas-block]:p-2 [&_.canvas-block]:text-xs [&_.code-block]:rounded [&_.code-block]:bg-background/50 [&_.code-block]:p-2 [&_.code-block]:text-xs [&_code]:rounded [&_code]:bg-background/50 [&_code]:px-1 [&_code]:text-xs [&_li]:ml-4 [&_ul]:list-disc"
-                    dangerouslySetInnerHTML={{
-                      __html: renderMarkdown(msg.content || "Pensando..."),
-                    }}
-                  />
-                ) : (
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
-                )}
-              </div>
-            </div>
+            <MessageBubble key={msg.id} msg={msg} />
           ))}
         </div>
       </ScrollArea>
 
-      {/* input */}
-      <div className="border-t p-3">
-        <div className="flex items-end gap-2">
-          <textarea
-            ref={textareaRef}
-            className="flex-1 resize-none rounded-lg border bg-background px-3 py-2 text-sm outline-none ring-ring focus-visible:ring-2"
-            placeholder="Descreva seu negócio ou peça ajuda..."
-            rows={1}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onInput={handleInput}
-          />
-          {isStreaming ? (
-            <Button size="icon" variant="destructive" onClick={onAbort}>
-              <Square className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              size="icon"
-              onClick={handleSend}
-              disabled={!input.trim()}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
+      <ChatInput
+        isStreaming={isStreaming}
+        onSend={onSend}
+        onAbort={onAbort}
+      />
     </div>
   );
 }

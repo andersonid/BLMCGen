@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/',
   authenticateToken,
   [
-    body('message').isString().trim().isLength({ min: 1, max: 10000 }),
+    body('message').isString().trim().isLength({ min: 1, max: 100000 }),
     body('history').optional().isArray({ max: 40 }),
     body('history.*.role').optional().isIn(['user', 'assistant']),
     body('history.*.content').optional().isString(),
