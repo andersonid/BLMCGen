@@ -1,0 +1,7 @@
+FROM postgres:15-alpine
+
+# Copy init script
+COPY backend/init.sql /docker-entrypoint-initdb.d/init.sql
+
+# Set proper permissions
+RUN chmod 644 /docker-entrypoint-initdb.d/init.sql

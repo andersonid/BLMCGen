@@ -32,6 +32,10 @@
                 </div>
             </div>
             <div class="actions">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <span class="user-name" id="userName"></span>
+                    <button id="logoutBtn" class="btn">🚪 Logout</button>
+                </div>
                 <button id="exportBtn" class="btn">📄 Export A4</button>
                 <button id="shareBtn" class="btn">🖼️ Share PNG</button>
                 <button id="loadBtn" class="btn">📂 Load .md</button>
@@ -123,6 +127,7 @@
         </div>
     </div>
 
+
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
     
@@ -131,6 +136,6 @@
     <script src="js/i18n.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/renderer.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app-simple.js?v=loginfix1"></script>
 </body>
 </html> 

@@ -16,7 +16,7 @@ class BMCApp {
         this.saveTimeout = null;
         
         // Sistema de múltiplas abas
-        this.codeTabs = new Map(); // Map<tabId, {name, content, isActive}>
+        this.codeTabs = new Map(); // Map<tabId, {name, content, isActive, cloudId}>
         this.activeCodeTabId = null;
         this.nextTabId = 1;
         this.codeTabsKey = 'blmcgen-code-tabs';
@@ -30,6 +30,14 @@ class BMCApp {
         this.modalMode = null; // 'rename' ou 'create'
         this.modalEventsSetup = false;
         this.clickTimeout = null;
+        
+        // Sistema de autenticação
+        this.isAuthenticated = false;
+        this.user = null;
+        this.authToken = null;
+        this.apiBaseUrl = 'http://localhost:3001/api';
+        this.authModalMode = 'login'; // 'login' ou 'register'
+        this.authModalSetup = false;
         
         this.init();
     }
@@ -937,6 +945,17 @@ revenue-streams:
 
     async init() {
         try {
+            // Show loading screen
+            this.showLoadingScreen();
+            
+            // Check authentication first
+            await this.checkAuthentication();
+            
+            if (!this.isAuthenticated) {
+                this.showAuthModal();
+                return;
+            }
+            
             // Initialize i18n
             i18n.init();
             this.initLanguage();
@@ -994,12 +1013,14 @@ revenue-streams:
             // Update status
             this.updateStatus(i18n.t('ready'));
             
-
+            // Hide loading screen
+            this.hideLoadingScreen();
             
             console.log('BMC Markdown App initialized successfully');
         } catch (error) {
             console.error('Error initializing BMC App:', error);
             this.showError('Failed to initialize application');
+            this.hideLoadingScreen();
         }
     }
 
@@ -2189,9 +2210,333 @@ revenue-streams:
         
         this.updateStatus('Project exported');
     }
+
+    // ===== SISTEMA DE AUTENTICAÇÃO =====
+    
+    async checkAuthentication() {
+        try {
+            console.log('🔐 Checking authentication...');
+            const token = localStorage.getItem('bmcgen_auth_token');
+            console.log('Token found:', !!token);
+            
+            if (!token) {
+                console.log('❌ No token found, user not authenticated');
+                return false;
+            }
+
+            console.log('🌐 Checking token with API...');
+            const response = await fetch(`${this.apiBaseUrl}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('API response status:', response.status);
+
+            if (response.ok) {
+                const data = await response.json();
+                this.isAuthenticated = true;
+                this.user = data.data.user;
+                this.authToken = token;
+                console.log('✅ User authenticated:', this.user.name);
+                this.updateUserUI();
+                return true;
+            } else {
+                console.log('❌ Token invalid, removing from storage');
+                localStorage.removeItem('bmcgen_auth_token');
+                return false;
+            }
+        } catch (error) {
+            console.error('❌ Auth check failed:', error);
+            localStorage.removeItem('bmcgen_auth_token');
+            return false;
+        }
+    }
+
+    showLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'flex';
+        }
+    }
+
+    hideLoadingScreen() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+        }
+    }
+
+    showAuthModal() {
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.classList.add('show');
+            this.setupAuthModal();
+        }
+    }
+
+    hideAuthModal() {
+        const authModal = document.getElementById('authModal');
+        if (authModal) {
+            authModal.classList.remove('show');
+        }
+    }
+
+    setupAuthModal() {
+        if (this.authModalSetup) return;
+
+        const authModal = document.getElementById('authModal');
+        const closeBtn = document.getElementById('closeAuthModal');
+        const switchBtn = document.getElementById('switchAuthMode');
+        const submitBtn = document.getElementById('submitAuth');
+        const resendBtn = document.getElementById('resendVerification');
+
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            this.hideAuthModal();
+        });
+
+        // Switch between login/register
+        switchBtn.addEventListener('click', () => {
+            this.toggleAuthMode();
+        });
+
+        // Submit form
+        submitBtn.addEventListener('click', () => {
+            this.handleAuthSubmit();
+        });
+
+        // Resend verification
+        if (resendBtn) {
+            resendBtn.addEventListener('click', () => {
+                this.resendVerification();
+            });
+        }
+
+        // Enter key to submit
+        const inputs = authModal.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleAuthSubmit();
+                }
+            });
+        });
+
+        this.authModalSetup = true;
+    }
+
+    toggleAuthMode() {
+        this.authModalMode = this.authModalMode === 'login' ? 'register' : 'login';
+        
+        const title = document.getElementById('authModalTitle');
+        const switchBtn = document.getElementById('switchAuthMode');
+        const submitBtn = document.getElementById('submitAuth');
+        const nameGroup = document.getElementById('nameGroup');
+        const verificationMessage = document.getElementById('verificationMessage');
+        const authForm = document.getElementById('authForm');
+
+        if (this.authModalMode === 'login') {
+            title.textContent = 'Entrar';
+            switchBtn.textContent = 'Criar conta';
+            submitBtn.textContent = 'Entrar';
+            nameGroup.classList.add('hidden');
+            verificationMessage.style.display = 'none';
+            authForm.style.display = 'block';
+        } else {
+            title.textContent = 'Criar Conta';
+            switchBtn.textContent = 'Já tenho conta';
+            submitBtn.textContent = 'Criar Conta';
+            nameGroup.classList.remove('hidden');
+            verificationMessage.style.display = 'none';
+            authForm.style.display = 'block';
+        }
+
+        // Clear form
+        document.getElementById('authEmail').value = '';
+        document.getElementById('authPassword').value = '';
+        document.getElementById('authName').value = '';
+        this.hideAuthError();
+    }
+
+    async handleAuthSubmit() {
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+        const name = document.getElementById('authName').value.trim();
+
+        if (!email || !password) {
+            this.showAuthError('Email e senha são obrigatórios');
+            return;
+        }
+
+        if (this.authModalMode === 'register' && !name) {
+            this.showAuthError('Nome completo é obrigatório');
+            return;
+        }
+
+        try {
+            if (this.authModalMode === 'login') {
+                await this.login(email, password);
+            } else {
+                await this.register(name, email, password);
+            }
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async login(email, password) {
+        const response = await fetch(`${this.apiBaseUrl}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            this.isAuthenticated = true;
+            this.user = data.data.user;
+            this.authToken = data.data.token;
+            localStorage.setItem('bmcgen_auth_token', this.authToken);
+            
+            this.hideAuthModal();
+            this.updateUserUI();
+            this.init(); // Re-initialize app
+        } else {
+            throw new Error(data.error || 'Erro ao fazer login');
+        }
+    }
+
+    async register(name, email, password) {
+        const response = await fetch(`${this.apiBaseUrl}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Show verification message
+            const authForm = document.getElementById('authForm');
+            const verificationMessage = document.getElementById('verificationMessage');
+            
+            authForm.style.display = 'none';
+            verificationMessage.style.display = 'block';
+            
+            // Store email for resend
+            this.pendingVerificationEmail = email;
+        } else {
+            throw new Error(data.error || 'Erro ao criar conta');
+        }
+    }
+
+    async resendVerification() {
+        if (!this.pendingVerificationEmail) return;
+
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/auth/resend-verification`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: this.pendingVerificationEmail })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                this.showAuthError('Email de verificação reenviado!', 'success');
+            } else {
+                throw new Error(data.error || 'Erro ao reenviar email');
+            }
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async logout() {
+        try {
+            if (this.authToken) {
+                await fetch(`${this.apiBaseUrl}/auth/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${this.authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            this.isAuthenticated = false;
+            this.user = null;
+            this.authToken = null;
+            localStorage.removeItem('bmcgen_auth_token');
+            
+            // Clear all data
+            this.clearAllData();
+            
+            // Show auth modal
+            this.showAuthModal();
+        }
+    }
+
+    updateUserUI() {
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.style.display = 'none';
+        }
+
+        // Add user info to header
+        const actions = document.querySelector('.actions');
+        if (actions && !document.querySelector('.user-info')) {
+            const userInfo = document.createElement('div');
+            userInfo.className = 'user-info';
+            userInfo.innerHTML = `
+                <div class="user-avatar">${this.user.name.charAt(0).toUpperCase()}</div>
+                <span class="user-name">${this.user.name}</span>
+                <button class="logout-btn" id="logoutBtn">Sair</button>
+            `;
+            actions.insertBefore(userInfo, actions.firstChild);
+
+            // Add logout event
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                this.logout();
+            });
+        }
+    }
+
+    showAuthError(message, type = 'error') {
+        const errorDiv = document.getElementById('authError');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            errorDiv.className = `error-message ${type === 'success' ? 'success' : ''}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+    }
+
+    hideAuthError() {
+        const errorDiv = document.getElementById('authError');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+    }
 }
 
 // Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new BMCApp();
+    window.app = new BMCApp();
 }); 

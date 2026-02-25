@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - API_URL=http://backend:3001
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://bmcmarkdown:bmcmarkdown123@db:5432/bmcmarkdown
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - PORT=3001
+      - SMTP_HOST=${SMTP_HOST:-email-smtp.us-east-1.amazonaws.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME:-BLMCGen App}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@nobre.ninja}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8080}
+    depends_on:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile.db
+    environment:
+      - POSTGRES_DB=bmcmarkdown
+      - POSTGRES_USER=bmcmarkdown
+      - POSTGRES_PASSWORD=bmcmarkdown123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "ssl=off"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bmcmarkdown -d bmcmarkdown"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
