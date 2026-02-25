@@ -6,10 +6,12 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const canvasRoutes = require('./routes/canvas');
+const chatRoutes = require('./routes/chat');
 const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
 const { connectDB } = require('./config/database');
 const { errorHandler } = require('./middleware/errorHandler');
+const { mountMcp } = require('./mcp/server');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,11 +49,22 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Stricter rate limit for AI chat (30 req/min per IP)
+const chatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: 'Too many AI requests, please slow down.'
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/canvas', canvasRoutes);
+app.use('/api/chat', chatLimiter, chatRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
+
+// MCP server (Model Context Protocol)
+mountMcp(app);
 
 // Error handling middleware
 app.use(errorHandler);

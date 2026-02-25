@@ -1,7 +1,7 @@
 {
   "name": "bmc-markdown-generator",
-  "version": "2.2.0",
-  "description": "Business & Lean Model Canvas Generator with Backend API",
+  "version": "3.0.0",
+  "description": "Business & Lean Model Canvas Generator with AI Agent, MCP Server, and Backend API",
   "main": "index.html",
   "scripts": {
     "start": "python3 -m http.server 8000",

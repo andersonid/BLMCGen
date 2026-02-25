@@ -27,6 +27,9 @@ services:
       - SMTP_FROM_NAME=${SMTP_FROM_NAME:-BLMCGen App}
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@nobre.ninja}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8080}
+      - LLM_PROVIDER=${LLM_PROVIDER:-gemini}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       - db
     restart: unless-stopped

@@ -17,6 +17,11 @@
             <span>Business & Lean Model Canvas Generator</span>
             </div>
             <div class="controls">
+                <div class="view-toggle">
+                    <button id="viewChat" class="view-btn active" title="Chat + Canvas">💬 Chat</button>
+                    <button id="viewCode" class="view-btn" title="Code + Canvas">📝 Code</button>
+                    <button id="viewCanvas" class="view-btn" title="Canvas Full">📊 Canvas</button>
+                </div>
                 <div class="language-selector">
                     <select id="languageSelect" class="language-select">
                         <option value="en">🇺🇸 English</option>
@@ -45,8 +50,13 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Code Editor Section -->
-            <div class="editor-section">
+            <!-- Chat Section (AI mode) -->
+            <div class="chat-section" id="chatSection">
+                <div id="chatContainer"></div>
+            </div>
+
+            <!-- Code Editor Section (Code mode) -->
+            <div class="editor-section" id="editorSection" style="display:none;">
                 <div class="editor-header">
                     <div class="editor-tabs">
                         <button class="tab active" data-tab="code">
@@ -60,7 +70,6 @@
                         </button>
                     </div>
                 </div>
-                <!-- Code Tabs Container -->
                 <div class="code-tabs-container" id="codeTabsContainer">
                     <div class="code-tabs"></div>
                 </div>
@@ -131,11 +140,12 @@
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.js"></script>
     
-    <!-- Nossa solução própria de PDF -->
     <script src="js/simple-pdf.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/parser.js"></script>
     <script src="js/renderer.js"></script>
-    <script src="js/app-simple.js?v=loginfix1"></script>
+    <script src="js/llm-client.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/app-simple.js?v=ai1"></script>
 </body>
 </html> 

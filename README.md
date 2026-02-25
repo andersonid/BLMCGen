@@ -1,4 +1,4 @@
-# BLMCGen v2.2.0
+# BLMCGen v3.0.0
 
 ## 🇧🇷 Português
 
@@ -8,13 +8,17 @@ Uma ferramenta web para criar Business Model Canvas (BMC) e Lean Model Canvas (L
 
 ### Funcionalidades
 
+*   **AI Agent Integrado**: Chat com IA que guia a criação de BMC/LMC usando a metodologia correta (Osterwalder / Ash Maurya).
+*   **MCP Server**: Endpoints MCP (Model Context Protocol) para integração com Claude Desktop, Cursor, ChatGPT e outros AI Agents externos.
+*   **Interface AI-First**: Chat panel + canvas renderizado lado a lado; modo código opcional.
 *   **Suporte Duplo**: Criação de Business Model Canvas (BMC) e Lean Model Canvas (LMC).
-*   **Pré-visualização em Tempo Real**: Renderização do canvas enquanto você digita.
+*   **Pré-visualização em Tempo Real**: Renderização do canvas enquanto a IA escreve ou você digita.
 *   **Interface com Abas**: Gerencie múltiplos projetos; conteúdo salvo automaticamente.
 *   **Exportação**: PDF, PNG e JPEG.
 *   **Autenticação**: Registro com verificação por email, login JWT, persistência de canvas no banco.
 *   **RBAC Completo**: Sistema de roles e permissions granulares (admin, user). Painel admin em `/admin`.
 *   **Painel Admin** (`/admin`): Dashboard com estatísticas, gestão de usuários (editar, ativar/desativar, excluir), gerenciamento de roles e visualização de todos os canvas.
+*   **API Pública**: REST API + endpoints de parse/validate/format para a DSL.
 *   **URLs Limpas**: Rotas sem extensão `.html` (`/login`, `/admin`).
 *   **Suporte a Múltiplos Idiomas**: Português, Inglês e Espanhol.
 *   **Design Responsivo**: Mobile e desktop.
@@ -44,13 +48,17 @@ A web tool for creating Business Model Canvas (BMC) and Lean Model Canvas (LMC) 
 
 ### Features
 
+*   **Integrated AI Agent**: Chat-based AI that guides BMC/LMC creation using proper methodology (Osterwalder / Ash Maurya).
+*   **MCP Server**: Model Context Protocol endpoints for integration with Claude Desktop, Cursor, ChatGPT and other external AI Agents.
+*   **AI-First Interface**: Chat panel + rendered canvas side by side; code mode optional.
 *   **Dual Support**: Create both Business Model Canvas (BMC) and Lean Model Canvas (LMC).
-*   **Real-time Preview**: Renders the canvas as you type.
+*   **Real-time Preview**: Renders the canvas as the AI writes or you type.
 *   **Tabbed Interface**: Manage multiple projects; content auto-saved.
 *   **Export Options**: PDF, PNG and JPEG.
 *   **Authentication**: Email-verified registration, JWT login, canvas persisted to database.
 *   **Full RBAC**: Granular roles and permissions system (admin, user). Admin panel at `/admin`.
 *   **Admin Panel** (`/admin`): Dashboard with stats, user management (edit, activate/deactivate, delete), role management, and all-canvas view.
+*   **Public API**: REST API + parse/validate/format endpoints for the DSL.
 *   **Clean URLs**: Extension-free routes (`/login`, `/admin`).
 *   **Multi-language Support**: Portuguese, English, and Spanish.
 *   **Responsive Design**: Mobile and desktop.
@@ -165,8 +173,10 @@ revenue-streams:
 
 **Frontend**: HTML5, CSS3, JavaScript (ES6+), Monaco Editor, jsPDF
 **Backend**: Node.js, Express, JWT, bcrypt, Nodemailer
+**AI/LLM**: Gemini 2.5 Flash-Lite (primary), GPT-4o-mini (fallback), SSE streaming
+**MCP**: @modelcontextprotocol/sdk (SSE transport, 11 tools, 3 resources)
 **Banco**: PostgreSQL
-**Infra**: Docker Compose, Nginx (proxy reverso + URLs limpas)
+**Infra**: Docker Compose, Nginx (proxy reverso + URLs limpas + SSE)
 **Deploy**: Coolify (GitHub webhook → auto build/deploy)
 
 ---

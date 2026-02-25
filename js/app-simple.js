@@ -1,4 +1,4 @@
-// BMC Markdown App - Versão Simplificada (sem autenticação)
+// BMC Markdown App - AI-First with Chat + Canvas
 class BMCApp {
     constructor() {
         this.editor = null;
@@ -16,7 +16,7 @@ class BMCApp {
         this.saveTimeout = null;
         
         // Sistema de múltiplas abas
-        this.codeTabs = new Map(); // Map<tabId, {name, content, isActive, cloudId}>
+        this.codeTabs = new Map();
         this.activeCodeTabId = null;
         this.nextTabId = 1;
         this.codeTabsKey = 'blmcgen-code-tabs';
@@ -30,7 +30,7 @@ class BMCApp {
         
         // Modal de aba
         this.currentTabId = null;
-        this.modalMode = null; // 'rename' ou 'create'
+        this.modalMode = null;
         this.modalEventsSetup = false;
         this.clickTimeout = null;
         
@@ -39,6 +39,11 @@ class BMCApp {
         this.isAuthenticated = false;
         this.authToken = null;
         this.user = null;
+
+        // View mode: 'chat' | 'code' | 'canvas'
+        this.viewMode = 'chat';
+        this.llmClient = null;
+        this.chatPanel = null;
         
         this.init();
     }
@@ -448,42 +453,106 @@ class BMCApp {
 
     async init() {
         try {
-            // Verificar autenticação primeiro
             await this.checkAuthentication();
-            
-            // Inicializar exemplos
             this.initializeExamples();
-            
-            // Carregar abas salvas
             this.loadCodeTabs();
-            
-            // Se autenticado e sem abas locais, carregar canvas da nuvem
+
             if (this.isAuthenticated && this.codeTabs.size === 0) {
                 await this.loadCanvasFromCloud();
             }
-            
-            // Se ainda não há abas, criar uma padrão
+
             if (this.codeTabs.size === 0) {
                 this.createCodeTab('Código 1', this.loadExample());
             }
-            
-            // Inicializar editor
+
             await this.initEditor();
-            
-            // Inicializar canvas
             this.initCanvas();
-            
-            // Configurar event listeners
+            this.initChat();
             this.setupEventListeners();
-            
-            // Atualizar UI
+            this.setupViewToggle();
+
             this.updateCodeTabsUI();
             this.updateUserUI();
-            
+            this.setViewMode('chat');
+
             console.log('BMC Markdown App initialized successfully');
         } catch (error) {
             console.error('Error initializing app:', error);
         }
+    }
+
+    initChat() {
+        this.llmClient = new LLMClient(this.apiBaseUrl);
+        const container = document.getElementById('chatContainer');
+        if (!container) return;
+
+        this.chatPanel = new ChatPanel({
+            container,
+            llmClient: this.llmClient,
+            onCanvasUpdate: (data) => {
+                if (data.markdown && data.valid) {
+                    // Update editor and active tab with AI-generated markdown
+                    if (this.editor) this.editor.setValue(data.markdown);
+                    if (this.activeCodeTabId && this.codeTabs.has(this.activeCodeTabId)) {
+                        const tab = this.codeTabs.get(this.activeCodeTabId);
+                        tab.content = data.markdown;
+                        this.saveCodeTabs();
+                        if (this.isAuthenticated) {
+                            this.saveCanvasToCloud(this.activeCodeTabId).catch(() => {});
+                        }
+                    }
+                    this.render();
+                }
+            }
+        });
+
+        if (this.activeCodeTabId) {
+            const tab = this.codeTabs.get(this.activeCodeTabId);
+            if (tab && tab.cloudId) {
+                this.chatPanel.setCanvasId(tab.cloudId);
+            }
+        }
+    }
+
+    setupViewToggle() {
+        const chatBtn = document.getElementById('viewChat');
+        const codeBtn = document.getElementById('viewCode');
+        const canvasBtn = document.getElementById('viewCanvas');
+
+        if (chatBtn) chatBtn.addEventListener('click', () => this.setViewMode('chat'));
+        if (codeBtn) codeBtn.addEventListener('click', () => this.setViewMode('code'));
+        if (canvasBtn) canvasBtn.addEventListener('click', () => this.setViewMode('canvas'));
+    }
+
+    setViewMode(mode) {
+        this.viewMode = mode;
+        const main = document.querySelector('.main-content');
+        const chatSection = document.getElementById('chatSection');
+        const editorSection = document.getElementById('editorSection');
+
+        main.classList.remove('view-canvas');
+
+        // Update toggle buttons
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.getElementById(
+            mode === 'chat' ? 'viewChat' : mode === 'code' ? 'viewCode' : 'viewCanvas'
+        );
+        if (activeBtn) activeBtn.classList.add('active');
+
+        if (mode === 'chat') {
+            chatSection.style.display = 'flex';
+            editorSection.style.display = 'none';
+        } else if (mode === 'code') {
+            chatSection.style.display = 'none';
+            editorSection.style.display = 'flex';
+            if (this.editor) this.editor.layout();
+        } else {
+            chatSection.style.display = 'none';
+            editorSection.style.display = 'none';
+            main.classList.add('view-canvas');
+        }
+
+        this.render();
     }
 
     async checkAuthentication() {
@@ -1040,18 +1109,19 @@ cost-structure:
         this.isRendering = true;
         
         try {
-            const content = this.getCurrentTabContent();
+            let content;
+            if (this.viewMode === 'code' && this.editor) {
+                content = this.editor.getValue();
+            } else {
+                content = this.getCurrentTabContent();
+            }
             const parsed = this.parser.parse(content);
             
             if (parsed) {
                 this.renderer.render(parsed, this.ctx, this.zoomLevel);
-                this.updateStatus('Canvas rendered successfully');
-            } else {
-                this.updateStatus('Invalid BMC/LMC syntax');
             }
         } catch (error) {
             console.error('Render error:', error);
-            this.updateStatus('Render error: ' + error.message);
         } finally {
             this.isRendering = false;
         }
