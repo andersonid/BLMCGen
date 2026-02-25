@@ -14,6 +14,9 @@ const { errorHandler } = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Behind reverse proxies (Nginx + Traefik): trust first proxy for correct IP in X-Forwarded-For
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
