@@ -91,4 +91,7 @@ Thumbs.db
 # Build output
 dist/
 build/
-out/ 
+out/
+
+# Playwright MCP artifacts
+.playwright-mcp/
